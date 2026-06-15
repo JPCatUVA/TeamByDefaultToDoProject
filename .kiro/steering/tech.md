@@ -2,14 +2,18 @@
 
 ## Backend
 - **Language**: Java
-- **Framework**: Spring Boot
+- **Framework**: Spring Boot (Web, Data JPA)
 - **Auth**: Spring Security (leverage built-in features)
-- **Database**: Relational DB (SQLite)
-- **ORM**: Spring Data JPA / Hibernate (assumed; confirm when set up)
+- **Database**: SQLite
+- **ORM**: Spring Data JPA / Hibernate
+- **Build Tool**: Gradle
 
 ## Frontend
-- **Templating**: Plain HTML pages (no SPA framework indicated)
-- **Pages served**: `AccountCreation.html`, `Login.html`, `Main.html`, `Tasks.html`, `Subtask.html`, `Account.html`
+- **Framework**: Angular (SPA)
+- **Pages/Views**: Account Creation, Login, Main Dashboard, Tasks, Subtask, Account
+
+## Version Control
+- **Tools**: Git, GitHub
 
 ## Data Model (from ERD)
 
@@ -48,15 +52,13 @@
 
 ## Common Commands
 
-> Update this section once the build system is finalized.
-
 ```bash
 # Build
-./mvnw clean package
+./gradlew build
 
 # Run
-./mvnw spring-boot:run
+./gradlew bootRun
 
 # Test
-./mvnw test
+./gradlew test
 ```
