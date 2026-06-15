@@ -2,12 +2,14 @@
 
 ## Repository Layout
 
+The repository is split into two top-level directories — one for the backend, one for the frontend. They are independent projects with their own dependency and build systems.
+
 ```
 TeamByDefaultToDoProject/
 ├── .kiro/
 │   └── steering/          # AI steering rules
 ├── spring/
-│   └── todo/              # Spring Boot application root
+│   └── todo/              # Spring Boot backend (Java / Gradle)
 │       ├── build.gradle.kts
 │       ├── settings.gradle.kts
 │       ├── gradlew / gradlew.bat
@@ -19,6 +21,15 @@ TeamByDefaultToDoProject/
 │           │       └── application.properties
 │           └── test/
 │               └── java/teambydefault/todo/   # Test source code
+├── angular/
+│   └── todo/              # Angular frontend (TypeScript / Node.js)
+│       ├── package.json
+│       ├── angular.json
+│       ├── tsconfig.json
+│       └── src/
+│           ├── app/       # Components, services, modules, routes
+│           ├── assets/
+│           └── environments/
 └── README.md
 ```
 
@@ -37,6 +48,20 @@ teambydefault.todo
 ├── dto/            # Request/response transfer objects
 ├── security/       # JWT filter, config, user details service
 └── config/         # Spring @Configuration classes
+```
+
+## Angular Frontend Structure
+
+Once created, the Angular app lives under `angular/todo/src/app/` and should follow standard Angular conventions:
+
+```
+app/
+├── components/    # Reusable UI components
+├── pages/         # Route-level components (one per page/view)
+├── services/      # Angular services — HTTP calls to the Spring API
+├── models/        # TypeScript interfaces mirroring backend DTOs
+├── guards/        # Route guards (e.g. auth guard)
+└── interceptors/  # HTTP interceptors (e.g. attach JWT token)
 ```
 
 ## Conventions
