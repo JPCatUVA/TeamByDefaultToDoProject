@@ -11,23 +11,23 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import teambydefault.todo.entity.Account;
-import teambydefault.todo.service.AccountService;
+import teambydefault.todo.entity.User;
+import teambydefault.todo.service.UserService;
 
 @RestController
 @RequiredArgsConstructor
-public class AccountController {
+public class UserController {
 
-    private final AccountService accService;
+    private final UserService accService;
 
     @PostMapping("/register")//May change based on documentation...
-    public ResponseEntity<Void> registerNewAcc(@RequestBody Account acc) {
+    public ResponseEntity<Void> registerNewAcc(@RequestBody User acc) {
         accService.registerAcc(acc);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
     
     //Not Universal, triggered by Registration failures
-    //from AccountService
+    //from UserService
     @ExceptionHandler(RuntimeException.class)//Change Error handling for custom ones...
     public ResponseEntity<String> handleRegistFail(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());

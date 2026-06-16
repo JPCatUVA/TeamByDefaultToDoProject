@@ -1,8 +1,8 @@
 package teambydefault.todo.service;
 
-import teambydefault.todo.entity.Account;
+import teambydefault.todo.entity.User;
 import teambydefault.todo.exception.RegistrationException;
-import teambydefault.todo.repo.AccountRepo;
+import teambydefault.todo.repo.UserRepo;
 
 import java.util.Optional;
 
@@ -12,9 +12,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class AccountService {
+public class UserService {
     
-    private final AccountRepo accRepo;
+    private final UserRepo accRepo;
 
     /*
         Implement some registration rules here?
@@ -30,18 +30,18 @@ public class AccountService {
 
     //Based on demo: Will definitely need to be changed 
     //for email instead of username
-    public void registerAcc(Account acc) {
-        // call helper methods here
-
+    public void registerAcc(User acc) {
+        
+        //Helper methods
         // check email validity
         if(!isNotNull(acc.getEmail())) {
             //Use a custom exception in place of this line here
             throw new RegistrationException("Email should mot be empty.");
         }
-        // I don't think emails have a length restriction...
-        // if(!isCorrectLength(acc.getEmail())) {
-        //     throw new RegistrationException("Placeholder error for registration.");
-        // }
+        
+        if(!isValidEmail(acc.getEmail())) {
+            throw new RegistrationException("This is not a valid email format.");
+        }
 
         if(!isUnique(acc.getEmail())) {
             throw new RegistrationException("Email already exists.");  
@@ -64,7 +64,7 @@ public class AccountService {
 
     //Some sample helper methods based on instuctor demo
     public boolean isCorrectLength(String credential){
-        // username is between 5-15 characters long
+        // password could be between 5-15 characters long
         return 5 <= credential.length() && credential.length() <= 15;
     }
 
@@ -78,22 +78,31 @@ public class AccountService {
         boolean hasUppercase = false;
         boolean hasDigit = false;
         boolean hasSpecialChar = false;
-        //boolean hasEmailSymbol = false;
 
         for (char c : credential.toCharArray()) {
             if (Character.isLowerCase(c)) hasLowercase = true;
             if (Character.isUpperCase(c)) hasUppercase = true;
             if (Character.isDigit(c)) hasDigit = true;
             if (!Character.isLetterOrDigit(c)) hasSpecialChar = true;
-            //if (c == '@') hasEmailSymbol = true;
             if (hasLowercase && hasUppercase && hasDigit && hasSpecialChar) return true;
         }
         
         return false;
     }
 
+    //Should verify that's a valid email format
+    public boolean isValidEmail(String credential) {
+        int charIndex = credential.indexOf("@");
+
+        if (charIndex <= 0) return false; //String starting with just the "@" should not be valid
+        if (charIndex == credential.length()) return false; //Should count out strings that only have "@"
+        if (credential.indexOf("@", charIndex + 1) != -1) return false; //Ensures no repeating "@" in the string
+
+        return true;
+    }
+
     public boolean isUnique(String credential) {
-        Optional<Account> accOptional = accRepo.findByEmail(credential);
+        Optional<User> accOptional = accRepo.findByEmail(credential);
         return !accOptional.isPresent();
     }
 }
