@@ -25,7 +25,7 @@ public class AccountService {
         Password Rules:
         - Not Null 
         - 5-15 characters long (Suggest different ranges?)
-        - Have at least one uppercase letter, one lowercase letter and one special character
+        - Have at least one uppercase letter, one lowercase letter, one number and one special character
     */
 
     //Based on demo: Will definitely need to be changed 
@@ -77,14 +77,16 @@ public class AccountService {
         boolean hasLowercase = false;
         boolean hasUppercase = false;
         boolean hasDigit = false;
+        boolean hasSpecialChar = false;
         //boolean hasEmailSymbol = false;
 
         for (char c : credential.toCharArray()) {
             if (Character.isLowerCase(c)) hasLowercase = true;
             if (Character.isUpperCase(c)) hasUppercase = true;
             if (Character.isDigit(c)) hasDigit = true;
+            if (!Character.isLetterOrDigit(c)) hasSpecialChar = true;
             //if (c == '@') hasEmailSymbol = true;
-            if (hasLowercase && hasUppercase && hasDigit) return true;
+            if (hasLowercase && hasUppercase && hasDigit && hasSpecialChar) return true;
         }
         
         return false;
