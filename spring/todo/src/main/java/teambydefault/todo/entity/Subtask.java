@@ -29,7 +29,7 @@ public class Subtask {
 
     //foreign key from task
     @ManyToOne
-    @JoinColumn(name = "todoId", referencedColumnName = "task_id", nullable = false)
+    @JoinColumn(name = "todo", referencedColumnName = "task_id", nullable = false)
     private ToDo todo;
 
     @Column(name = "title", nullable = false)
