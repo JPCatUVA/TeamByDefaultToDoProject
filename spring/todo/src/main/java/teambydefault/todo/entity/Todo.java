@@ -20,15 +20,15 @@ import lombok.NoArgsConstructor;
 @Table(name = "ToDos")
 public class ToDo {
 
-    @Column(name = "taskId")
+    @Column(name = "task_id")
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID taskId;
 
     //foreign key from user
     @ManyToOne
-    @JoinColumn(name = "userId", referencedColumnName = "user_id", nullable = false)
-    private UUID userId;
+    @JoinColumn(name = "user", referencedColumnName = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "title", nullable = false, unique = true) //SHOULD TASK TITLES BE UNIQUE?
     private String title;
