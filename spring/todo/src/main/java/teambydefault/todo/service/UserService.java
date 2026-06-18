@@ -38,11 +38,9 @@ public class UserService {
             //Use a custom exception in place of this line here
             throw new RegistrationException("Email should mot be empty.");
         }
-        
         if(!isValidEmail(acc.getEmail())) {
             throw new RegistrationException("This is not a valid email format.");
         }
-
         if(!isUnique(acc.getEmail())) {
             throw new RegistrationException("Email already exists.");  
         }
@@ -72,22 +70,9 @@ public class UserService {
         return credential != null;
     }
 
-    //There should be something more ideal here?
-    public boolean hasCorrectChars(String credential){
-        boolean hasLowercase = false;
-        boolean hasUppercase = false;
-        boolean hasDigit = false;
-        boolean hasSpecialChar = false;
-
-        for (char c : credential.toCharArray()) {
-            if (Character.isLowerCase(c)) hasLowercase = true;
-            if (Character.isUpperCase(c)) hasUppercase = true;
-            if (Character.isDigit(c)) hasDigit = true;
-            if (!Character.isLetterOrDigit(c)) hasSpecialChar = true;
-            if (hasLowercase && hasUppercase && hasDigit && hasSpecialChar) return true;
-        }
-        
-        return false;
+    // Uses lookaheads to assert each required character class is present somewhere in the string
+    public boolean hasCorrectChars(String credential) {
+        return credential.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d]).*$");
     }
 
     //Should verify that's a valid email format

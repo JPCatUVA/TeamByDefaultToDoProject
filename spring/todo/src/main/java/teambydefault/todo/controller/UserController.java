@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import teambydefault.todo.entity.User;
+import teambydefault.todo.exception.RegistrationException;
 import teambydefault.todo.service.UserService;
 
 @RestController
@@ -26,10 +27,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
     
-    //Not Universal, triggered by Registration failures
-    //from UserService
-    @ExceptionHandler(RuntimeException.class)//Change Error handling for custom ones...
-    public ResponseEntity<String> handleRegistFail(RuntimeException ex) {
+    //Not Universal, triggered by Registration failures from UserService
+    @ExceptionHandler(RegistrationException.class)//Change Error handling for custom ones...
+    public ResponseEntity<String> handleRegistFail(RegistrationException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }
