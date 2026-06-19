@@ -1,6 +1,7 @@
 package teambydefault.todo.service;
 
 import teambydefault.todo.entity.User;
+import teambydefault.todo.exception.LoginException;
 import teambydefault.todo.exception.RegistrationException;
 import teambydefault.todo.repo.UserRepo;
 
@@ -28,11 +29,8 @@ public class UserService {
         - Have at least one uppercase letter, one lowercase letter, one number and one special character
     */
 
-    //Based on demo: Will definitely need to be changed 
-    //for email instead of username
     public void registerAcc(User acc) {
         
-        //Helper methods
         // check email validity
         if(!isNotNull(acc.getEmail())) {
             //Use a custom exception in place of this line here
@@ -58,6 +56,32 @@ public class UserService {
 
         //when everything is valid
         accRepo.save(acc);
+    }
+
+    public User loginAcc(User acc) {
+
+        // Email must be provided
+        if (!isNotNull(acc.getEmail())) {
+            throw new LoginException("Email should not be empty.");
+        }
+
+        // Password must be provided
+        if (!isNotNull(acc.getPassword())) {
+            throw new LoginException("Password should not be empty.");
+        }
+
+        // Look up by email
+        Optional<User> found = accRepo.findByEmail(acc.getEmail());
+        if (!found.isPresent()) {
+            throw new LoginException("Invalid email or password.");
+        }
+
+        // Verify password matches
+        if (!found.get().getPassword().equals(acc.getPassword())) {
+            throw new LoginException("Invalid email or password.");
+        }
+
+        return found.get();
     }
 
     //Some sample helper methods based on instuctor demo
@@ -90,4 +114,5 @@ public class UserService {
         Optional<User> accOptional = accRepo.findByEmail(credential);
         return !accOptional.isPresent();
     }
+
 }
