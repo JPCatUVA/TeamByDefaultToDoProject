@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import teambydefault.todo.entity.User;
+import teambydefault.todo.exception.LoginException;
 import teambydefault.todo.exception.RegistrationException;
 import teambydefault.todo.service.UserService;
 
@@ -18,9 +19,10 @@ public class UserController {
 
     private final UserService accService;
 
-    // POST /register
+
+    //Handle registration of a User
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody User acc) {
+    public ResponseEntity<Void> registerNewAcc(@RequestBody User acc) {
         accService.registerAcc(acc);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -38,9 +40,23 @@ public class UserController {
         };
     }
 
-    // Handles RegistrationException thrown by UserService
+    // Handle login of a User
+    @PostMapping("/login")
+    public ResponseEntity<User> loginAcc(@RequestBody User acc) {
+        User loggedIn = accService.loginAcc(acc);
+        return ResponseEntity.ok(loggedIn);
+    }
+
+
+    //Not Universal, triggered by Registration failures from UserService
     @ExceptionHandler(RegistrationException.class)
-    public ResponseEntity<String> handleRegistrationFailure(RegistrationException ex) {
+    public ResponseEntity<String> handleRegistFail(RegistrationException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    // Triggered by login failures from UserService
+    @ExceptionHandler(LoginException.class)
+    public ResponseEntity<String> handleLoginFail(LoginException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 }
