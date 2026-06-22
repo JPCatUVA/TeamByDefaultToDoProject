@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Table(name = "ToDos")
-public class ToDo {
+public class Todo {
 
     @Column(name = "task_id")
     @Id

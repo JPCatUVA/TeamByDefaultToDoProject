@@ -1,4 +1,4 @@
-//done with Kiro using ToDo.java as a template
+//done with Kiro using Todo.java as a template
 
 package teambydefault.todo.entity;
 
@@ -30,7 +30,7 @@ public class Subtask {
     //foreign key from task
     @ManyToOne
     @JoinColumn(name = "todo", referencedColumnName = "task_id", nullable = false)
-    private ToDo todo;
+    private Todo todo;
 
     @Column(name = "title", nullable = false)
     private String title;
