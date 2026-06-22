@@ -105,4 +105,24 @@ public class UserService {
         Optional<User> accOptional = accRepo.findByEmail(credential);
         return !accOptional.isPresent();
     }
+
+    /**
+     * Attempts login for the given email/password.
+     * Returns:
+     *   "ok"             - credentials match
+     *   "not_found"      - no account with that email
+     *   "wrong_password" - email found but password doesn't match
+     *   "error"          - unexpected failure
+     */
+    public String login(String email, String password) {
+        if (email == null || password == null) return "error";
+
+        Optional<User> userOpt = accRepo.findByEmail(email);
+        if (userOpt.isEmpty()) return "not_found";
+
+        User user = userOpt.get();
+        if (!user.getPassword().equals(password)) return "wrong_password";
+
+        return "ok";
+    }
 }
