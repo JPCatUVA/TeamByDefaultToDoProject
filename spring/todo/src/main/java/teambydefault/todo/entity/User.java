@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "account")
 public class User {
-    @Column(name = "id")
+    @Column(name = "user_id")
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
