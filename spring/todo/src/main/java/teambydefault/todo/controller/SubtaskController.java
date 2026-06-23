@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import teambydefault.todo.entity.Subtask;
-import teambydefault.todo.entity.ToDo;
+import teambydefault.todo.entity.Todo;
 import teambydefault.todo.service.SubtaskService;
 import teambydefault.todo.service.ToDoService;
 
@@ -33,7 +33,7 @@ public class SubtaskController {
     // Returns all subtasks for a given task
     @GetMapping
     public ResponseEntity<List<Subtask>> getSubtasks(@RequestParam UUID taskId) {
-        ToDo todo = toDoService.getById(taskId).orElse(null);
+        Todo todo = toDoService.getById(taskId).orElse(null);
         if (todo == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -56,7 +56,7 @@ public class SubtaskController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        ToDo todo = toDoService.getById(subtask.getTodo().getTaskId()).orElse(null);
+        Todo todo = toDoService.getById(subtask.getTodo().getTaskId()).orElse(null);
         if (todo == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

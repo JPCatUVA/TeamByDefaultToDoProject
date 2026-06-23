@@ -1,6 +1,6 @@
 package teambydefault.todo.service;
 
-import teambydefault.todo.entity.ToDo;
+import teambydefault.todo.entity.Todo;
 import teambydefault.todo.entity.User;
 import teambydefault.todo.repo.ToDoRepo;
 
@@ -19,27 +19,27 @@ public class ToDoService {
     private final ToDoRepo toDoRepo;
 
     // Get all todos for a user
-    public List<ToDo> getAllByUser(User user) {
+    public List<Todo> getAllByUser(User user) {
         return toDoRepo.findByUser(user);
     }
 
     // Get todos filtered by completion status
-    public List<ToDo> getByUserAndStatus(User user, boolean isCompleted) {
+    public List<Todo> getByUserAndStatus(User user, boolean isCompleted) {
         return toDoRepo.findByUserAndIsCompleted(user, isCompleted);
     }
 
     // Get a single todo by its ID
-    public Optional<ToDo> getById(UUID taskId) {
+    public Optional<Todo> getById(UUID taskId) {
         return toDoRepo.findById(taskId);
     }
 
     // Create a new todo
-    public ToDo createToDo(ToDo toDo) {
+    public Todo createToDo(Todo toDo) {
         return toDoRepo.save(toDo);
     }
 
     // Partial update — only non-null fields in the patch are applied
-    public Optional<ToDo> patchToDo(UUID taskId, ToDo patch) {
+    public Optional<Todo> patchToDo(UUID taskId, Todo patch) {
         return toDoRepo.findById(taskId).map(existing -> {
             if (patch.getTitle() != null) existing.setTitle(patch.getTitle());
             if (patch.getDescription() != null) existing.setDescription(patch.getDescription());
