@@ -4,6 +4,7 @@ import teambydefault.todo.entity.User;
 import teambydefault.todo.exception.LoginException;
 import teambydefault.todo.exception.RegistrationException;
 import teambydefault.todo.repo.UserRepo;
+import teambydefault.todo.utility.JwtUtility;
 
 import java.util.Optional;
 
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
     
     private final UserRepo accRepo;
+    private final JwtUtility jwtUtil;
 
     /*
         Implement some registration rules here?
@@ -58,7 +60,7 @@ public class UserService {
         accRepo.save(acc);
     }
 
-    public User loginAcc(User acc) {
+    public String loginAcc(User acc) {
 
         // Email must be provided
         if (!isNotNull(acc.getEmail())) {
@@ -81,7 +83,7 @@ public class UserService {
             throw new LoginException("Invalid email or password.");
         }
 
-        return found.get();
+        return jwtUtil.generateToken(found.get());
     }
 
     //Some sample helper methods based on instuctor demo

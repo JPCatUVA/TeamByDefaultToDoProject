@@ -27,24 +27,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    // POST /login
-    // Body: email, password
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User credentials) {
-        String result = accService.login(credentials.getEmail(), credentials.getPassword());
-        return switch (result) {
-            case "ok" -> ResponseEntity.status(HttpStatus.ACCEPTED).body("Welcome! Login Successful");
-            case "not_found" -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This username does not exist");
-            case "wrong_password" -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to login. Please try again");
-            default -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failure. Re-attempt login");
-        };
-    }
 
+    // POST /login
     // Handle login of a User
     @PostMapping("/login")
-    public ResponseEntity<User> loginAcc(@RequestBody User acc) {
-        User loggedIn = accService.loginAcc(acc);
-        return ResponseEntity.ok(loggedIn);
+    public ResponseEntity<String> loginAcc(@RequestBody User creds) {
+        String token = accService.loginAcc(creds);
+        return ResponseEntity.ok(token);
     }
 
 

@@ -1,14 +1,18 @@
 package teambydefault.todo.utility;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 import javax.crypto.SecretKey;
+
+import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import teambydefault.todo.entity.User;
 
+@Component
 public class JwtUtility {
      private final String SECRET = "this-works-for-dev-use-environemnt-in-prod";
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
@@ -16,7 +20,7 @@ public class JwtUtility {
     public String generateToken(User user){
         return Jwts.builder()
                 .subject(user.getId().toString())// Who this token is for
-                .claim("username", user.getUsername())// extra information about the user we want to access
+                .claim("email", user.getEmail())// extra information about the user we want to access
                 .issuedAt(new Date(System.currentTimeMillis())) // when the token was created
                 .expiration(new Date(System.currentTimeMillis() + 86400000)) // when the token expires (24hr)
                 .signWith(key) // signing the jwt with our key for encryption
