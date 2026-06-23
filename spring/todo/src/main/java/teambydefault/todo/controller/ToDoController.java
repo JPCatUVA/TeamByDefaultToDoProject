@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import teambydefault.todo.entity.ToDo;
+import teambydefault.todo.entity.Todo;
 import teambydefault.todo.entity.User;
 import teambydefault.todo.repo.UserRepo;
 import teambydefault.todo.service.ToDoService;
@@ -32,7 +32,7 @@ public class ToDoController {
     // GET /task?userId={userId}
     // Returns all tasks belonging to the given user
     @GetMapping
-    public ResponseEntity<List<ToDo>> getTasks(@RequestParam UUID userId) {
+    public ResponseEntity<List<Todo>> getTasks(@RequestParam UUID userId) {
         User user = userRepo.findById(userId).orElse(null);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -42,16 +42,16 @@ public class ToDoController {
 
     // GET /task/{taskId}
     @GetMapping("/{taskId}")
-    public ResponseEntity<ToDo> getTaskById(@PathVariable UUID taskId) {
+    public ResponseEntity<Todo> getTaskById(@PathVariable UUID taskId) {
         return toDoService.getById(taskId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     // POST /task
-    // Body: title, description, dueDate, userId (as a field inside the ToDo body or resolved below)
+    // Body: title, description, dueDate, userId (as a field inside the Todo body or resolved below)
     @PostMapping
-    public ResponseEntity<ToDo> createTask(@RequestBody ToDo toDo) {
+    public ResponseEntity<Todo> createTask(@RequestBody Todo toDo) {
         if (toDo.getUser() == null || toDo.getUser().getId() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -62,16 +62,16 @@ public class ToDoController {
         }
 
         toDo.setUser(user);
-        ToDo created = toDoService.createToDo(toDo);
+        Todo created = toDoService.createToDo(toDo);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     // PATCH /task/{taskId}
     // Partial update — only send the fields you want to change
     @PatchMapping("/{taskId}")
-    public ResponseEntity<ToDo> patchTask(
+    public ResponseEntity<Todo> patchTask(
             @PathVariable UUID taskId,
-            @RequestBody ToDo patch) {
+            @RequestBody Todo patch) {
 
         return toDoService.patchToDo(taskId, patch)
                 .map(ResponseEntity::ok)

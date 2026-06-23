@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import teambydefault.todo.entity.Subtask;
-import teambydefault.todo.entity.ToDo;
+import teambydefault.todo.entity.Todo;
 import teambydefault.todo.repo.SubtaskRepo;
 
 @Service
@@ -18,7 +18,7 @@ public class SubtaskService {
     private final SubtaskRepo subtaskRepo;
 
     // Get all subtasks for a given todo
-    public List<Subtask> getAllByTodo(ToDo todo) {
+    public List<Subtask> getAllByTodo(Todo todo) {
         return subtaskRepo.findByTodo(todo);
     }
 
