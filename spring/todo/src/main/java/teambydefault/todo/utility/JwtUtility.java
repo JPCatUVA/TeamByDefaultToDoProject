@@ -7,6 +7,7 @@ import javax.crypto.SecretKey;
 
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -46,5 +47,21 @@ public class JwtUtility {
             return false;
         }
     }
+
+    public Claims extractAllClaims(String token) {
+        return Jwts.parser()
+            .verifyWith(key)         // use our secret key to decrypt and verify the token
+            .build()
+            .parseSignedClaims(token) // parse the token — throws if expired, malformed, or tampered
+            .getPayload();            // return the full Claims map so the caller can pull any claim they need
+    }
+
+    public String extractSubject(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    public String extractEmail(String token) {
+    return extractAllClaims(token).get("email", String.class);
+}
 
 }
