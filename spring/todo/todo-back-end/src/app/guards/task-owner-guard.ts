@@ -1,5 +1,5 @@
 import { CanActivateFn } from '@angular/router';
 
-export const guestGuardGuard: CanActivateFn = (route, state) => {
+export const taskOwnerGuard: CanActivateFn = (route, state) => {
   return true;
 };

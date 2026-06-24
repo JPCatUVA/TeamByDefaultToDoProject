@@ -1,6 +1,10 @@
-import { Service } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
-@Service()
+
+@Injectable({
+  providedIn: 'root',
+})
 export class AuthService {
   
 }
