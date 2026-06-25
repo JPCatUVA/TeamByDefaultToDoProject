@@ -5,6 +5,7 @@ import { Login } from './login/login';
 import { Home } from './home-view/home';
 import { TaskView } from './task-view/task-view';
 import { SubtaskView } from './subtask-view/subtask-view';
+import { Register } from './register/register';
 
 export const routes: Routes = [
   // Default redirect
@@ -12,6 +13,7 @@ export const routes: Routes = [
 
   // Public routes — only accessible when NOT logged in
   { path: 'login', component: Login, canActivate: [guestGuard] },
+  { path: 'register', component: Register, canActivate: [guestGuard] },
 
   // Protected routes — blocked until user is logged in
   { path: 'home', component: Home, canActivate: [loginAuthGuard] },
