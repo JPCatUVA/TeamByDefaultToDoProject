@@ -1,1 +1,108 @@
-<p>task-view works!</p>
+<div class="task-view-container">
+
+  <button class="back-btn" (click)="goBack()">← Back to Tasks</button>
+
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  @if (data$ | async; as data) {
+
+    <div class="task-detail">
+
+      <!-- Title -->
+      <div class="task-field">
+        <span class="field-label">Title</span>
+        @if (editingField === 'title') {
+          <div class="edit-row">
+            <input [formControl]="$any(editForm.get('title'))" type="text" />
+            <button (click)="saveEdit(data.task)" [disabled]="editForm.get('title')?.invalid">Save</button>
+            <button (click)="cancelEdit()">Cancel</button>
+          </div>
+        } @else {
+          <div class="field-value">
+            {{ data.task.title }}
+            <button class="edit-btn" (click)="startEdit('title', data.task.title)">Edit</button>
+          </div>
+        }
+      </div>
+
+      <!-- Description -->
+      <div class="task-field">
+        <span class="field-label">Description</span>
+        @if (editingField === 'description') {
+          <div class="edit-row">
+            <textarea [formControl]="$any(editForm.get('description'))"></textarea>
+            <button (click)="saveEdit(data.task)">Save</button>
+            <button (click)="cancelEdit()">Cancel</button>
+          </div>
+        } @else {
+          <div class="field-value">
+            {{ data.task.description || 'No description provided.' }}
+            <button class="edit-btn" (click)="startEdit('description', data.task.description)">Edit</button>
+          </div>
+        }
+      </div>
+
+      <!-- Due Date -->
+      <div class="task-field">
+        <span class="field-label">Due Date</span>
+        @if (editingField === 'dueDate') {
+          <div class="edit-row">
+            <input [formControl]="$any(editForm.get('dueDate'))" type="datetime-local" />
+            <button (click)="saveEdit(data.task)" [disabled]="editForm.get('dueDate')?.invalid">Save</button>
+            <button (click)="cancelEdit()">Cancel</button>
+          </div>
+        } @else {
+          <div class="field-value">
+            {{ data.task.dueDate | date:'medium' }}
+            <button class="edit-btn" (click)="startEdit('dueDate', data.task.dueDate)">Edit</button>
+          </div>
+        }
+      </div>
+
+      <!-- Completed -->
+      <div class="task-field">
+        <span class="field-label">Status</span>
+        @if (editingField === 'completed') {
+          <div class="edit-row">
+            <label>
+              <input type="checkbox" [formControl]="$any(editForm.get('completed'))" />
+              Completed
+            </label>
+            <button (click)="saveEdit(data.task)">Save</button>
+            <button (click)="cancelEdit()">Cancel</button>
+          </div>
+        } @else {
+          <div class="field-value">
+            <span [class.badge-complete]="data.task.completed" [class.badge-pending]="!data.task.completed">
+              {{ data.task.completed ? 'Completed' : 'Pending' }}
+            </span>
+            <button class="edit-btn" (click)="startEdit('completed', data.task.completed)">Edit</button>
+          </div>
+        }
+      </div>
+
+    </div>
+
+    <!-- Subtasks -->
+    <section class="subtasks-section">
+      <h2>Subtasks</h2>
+
+      @if (data.subtasks.length === 0) {
+        <p class="empty">No subtasks for this task.</p>
+      } @else {
+        <ul class="subtask-list">
+          @for (sub of data.subtasks; track sub.id) {
+            <li class="subtask-item" [class.completed]="sub.isCompleted">
+              <div class="subtask-title">{{ sub.title }}</div>
+              <div class="subtask-due">Due: {{ sub.dueDate | date:'mediumDate' }}</div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+  }
+
+</div>

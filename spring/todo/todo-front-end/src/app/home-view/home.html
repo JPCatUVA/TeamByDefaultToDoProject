@@ -17,7 +17,7 @@
     @if (tasks.length > 0) {
       <ul class="task-list">
         @for (task of tasks; track task.taskId) {
-          <li class="task-item" [class.completed]="task.completed">
+          <li class="task-item" [class.completed]="task.completed" [routerLink]="['/task', task.taskId]">
             <div class="task-title">{{ task.title }}</div>
             <div class="task-due">Due: {{ task.dueDate | date:'mediumDate' }}</div>
             <div class="task-status">{{ task.completed ? 'Completed' : 'Pending' }}</div>
