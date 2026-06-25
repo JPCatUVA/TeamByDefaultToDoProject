@@ -1,1 +1,29 @@
-<p>home works!</p>
+<div class="home-container">
+  <header class="home-header">
+    <h1>My Tasks</h1>
+    <button (click)="logout()">Logout</button>
+  </header>
+
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  <!-- re-labled as tasks for clarity -->
+  @if (tasks$ | async; as tasks) {
+    @if (tasks.length === 0 && !errorMessage) {
+      <p class="empty">No tasks found. You're all caught up!</p>
+    }
+
+    @if (tasks.length > 0) {
+      <ul class="task-list">
+        @for (task of tasks; track task.taskId) {
+          <li class="task-item" [class.completed]="task.completed">
+            <div class="task-title">{{ task.title }}</div>
+            <div class="task-due">Due: {{ task.dueDate | date:'mediumDate' }}</div>
+            <div class="task-status">{{ task.completed ? 'Completed' : 'Pending' }}</div>
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>

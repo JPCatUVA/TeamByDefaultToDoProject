@@ -12,6 +12,6 @@ export const appConfig: ApplicationConfig = {
 
     //here I have included HTTPClient because we are using an interceptor
     //with route guards
-    provideHttpClient(withInterceptors([loginAuthGuard]))
+    //provideHttpClient(withInterceptors([loginAuthGuard]))
   ]
 };
