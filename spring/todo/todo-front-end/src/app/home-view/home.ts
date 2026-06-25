@@ -1,16 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule, AsyncPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
-
-//This will be the main view of the application
-//It will display a list of all the logged in users tasks
-//and allow them to bring one to the forefront
-
-//the user should be able to logout from this view
-
-//DOM adjustments are handled through RxJs Observables
+import { map, catchError, switchMap } from 'rxjs/operators';
 
 import { Todo } from '../interfaces/Todo';
 import { TaskService } from '../services/task-service';
@@ -18,7 +11,7 @@ import { AuthService } from '../services/auth-service';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -26,12 +19,19 @@ export class Home {
 
   private tService = inject(TaskService);
   private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
 
-  // Todos sorted by dueDate ascending (soonest first), exposed as an Observable
-  // so the template can use the async pipe directly — no manual subscribe/unsubscribe needed
+  // Todos sorted by dueDate ascending (soonest first)
   tasks$: Observable<Todo[]> = this.loadTasks();
 
   errorMessage: string | null = null;
+  showAddForm = false;
+
+  addForm = this.fb.group({
+    title:       ['', Validators.required],
+    description: [''],
+    dueDate:     ['', Validators.required],
+  });
 
   private loadTasks(): Observable<Todo[]> {
     const userId = this.authService.getUserId();
@@ -42,7 +42,6 @@ export class Home {
     }
 
     return this.tService.getAllByUser(userId).pipe(
-      //sorting function for todo list
       map((todos) =>
         [...todos].sort(
           (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
@@ -55,7 +54,53 @@ export class Home {
     );
   }
 
-  logout(): void {
-    this.authService.logout();
+  // Refresh the task list by re-assigning the observable
+  private refresh(): void {
+    this.tasks$ = this.loadTasks();
+  }
+
+  toggleAddForm(): void {
+    this.showAddForm = !this.showAddForm;
+    if (!this.showAddForm) this.addForm.reset();
+  }
+
+  submitAdd(): void {
+    if (this.addForm.invalid) return;
+
+    const userId = this.authService.getUserId();
+    if (!userId) return;
+
+    const { title, description, dueDate } = this.addForm.value;
+
+    const newTask: Partial<Todo> = {
+      title: title!,
+      description: description ?? '',
+      dueDate: dueDate!,
+      completed: false,
+      user: { id: userId },
+    };
+
+    this.tService.create(newTask).subscribe({
+      next: () => {
+        this.addForm.reset();
+        this.showAddForm = false;
+        this.refresh();
+      },
+      error: () => {
+        this.errorMessage = 'Failed to create task. Please try again.';
+      },
+    });
+  }
+
+  deleteTask(event: MouseEvent, taskId: string): void {
+    // Stop the click from bubbling up to the li's routerLink
+    event.stopPropagation();
+
+    this.tService.delete(taskId).subscribe({
+      next: () => this.refresh(),
+      error: () => {
+        this.errorMessage = 'Failed to delete task. Please try again.';
+      },
+    });
   }
 }

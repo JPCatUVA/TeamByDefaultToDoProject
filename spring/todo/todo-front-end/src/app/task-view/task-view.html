@@ -87,17 +87,55 @@
 
     <!-- Subtasks -->
     <section class="subtasks-section">
-      <h2>Subtasks</h2>
+      <div class="subtasks-header">
+        <h2>Subtasks</h2>
+        <button class="add-btn" (click)="toggleAddSubtaskForm()">
+          {{ showAddSubtaskForm ? 'Cancel' : '+ Add Subtask' }}
+        </button>
+      </div>
 
-      @if (data.subtasks.length === 0) {
+      <!-- Add subtask form -->
+      @if (showAddSubtaskForm) {
+        <form class="add-form" [formGroup]="addSubtaskForm" (ngSubmit)="submitAddSubtask()">
+          <div class="form-field">
+            <label for="sub-title">Title</label>
+            <input id="sub-title" type="text" formControlName="title" placeholder="Subtask title" />
+            @if (addSubtaskForm.get('title')?.invalid && addSubtaskForm.get('title')?.touched) {
+              <span class="field-error">Title is required.</span>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="sub-description">Description</label>
+            <textarea id="sub-description" formControlName="description" placeholder="Optional description"></textarea>
+          </div>
+
+          <div class="form-field">
+            <label for="sub-dueDate">Due Date</label>
+            <input id="sub-dueDate" type="datetime-local" formControlName="dueDate" />
+            @if (addSubtaskForm.get('dueDate')?.invalid && addSubtaskForm.get('dueDate')?.touched) {
+              <span class="field-error">Due date is required.</span>
+            }
+          </div>
+
+          <button type="submit" [disabled]="addSubtaskForm.invalid">Save Subtask</button>
+        </form>
+      }
+
+      @if (data.subtasks.length === 0 && !showAddSubtaskForm) {
         <p class="empty">No subtasks for this task.</p>
-      } @else {
+      }
+
+      @if (data.subtasks.length > 0) {
         <ul class="subtask-list">
           @for (sub of data.subtasks; track sub.id) {
             <li class="subtask-item" [class.completed]="sub.isCompleted"
                 [routerLink]="['/task', data.task.taskId, 'subtask', sub.id]">
-              <div class="subtask-title">{{ sub.title }}</div>
-              <div class="subtask-due">Due: {{ sub.dueDate | date:'mediumDate' }}</div>
+              <div class="subtask-info">
+                <div class="subtask-title">{{ sub.title }}</div>
+                <div class="subtask-due">Due: {{ sub.dueDate | date:'mediumDate' }}</div>
+              </div>
+              <button class="delete-btn" (click)="deleteSubtask($event, sub.id)">Delete</button>
             </li>
           }
         </ul>

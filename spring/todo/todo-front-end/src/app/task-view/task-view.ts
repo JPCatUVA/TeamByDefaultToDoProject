@@ -35,56 +35,74 @@ export class TaskView implements OnInit {
   errorMessage: string | null = null;
 
   // Tracks which field is currently open for editing — only one field editable at a time
-  // Possible values: 'title' | 'description' | 'dueDate' | 'completed' | null
   editingField: string | null = null;
 
-  // Shared reactive form used for all inline edits — only the relevant control is active at a time
+  // Shared reactive form used for all inline edits
   editForm = this.fb.group({
-    title: ['', Validators.required],
+    title:       ['', Validators.required],
     description: [''],
-    dueDate: ['', Validators.required],
-    completed: [false],
+    dueDate:     ['', Validators.required],
+    completed:   [false],
   });
 
+  // Add subtask form
+  showAddSubtaskForm = false;
+  addSubtaskForm = this.fb.group({
+    title:       ['', Validators.required],
+    description: [''],
+    dueDate:     ['', Validators.required],
+  });
+
+  // Keep the current taskId handy for add/delete operations
+  private currentTaskId: string | null = null;
+
   ngOnInit(): void {
-    // Read the taskId from the route, then fetch the task and its subtasks in parallel
     this.data$ = this.route.paramMap.pipe(
       switchMap((params) => {
         const taskId = params.get('taskId');
+        this.currentTaskId = taskId;
         if (!taskId) {
           this.errorMessage = 'No task ID provided.';
           return of(null);
         }
-
-        // combineLatest fires when both requests complete, emitting both results together
-        return combineLatest([
-          this.taskService.getById(taskId),
-          this.subtaskService.getAllByTask(taskId),
-        ]).pipe(
-          map(([task, subtasks]) => ({ task, subtasks })),
-          catchError(() => {
-            this.errorMessage = 'Failed to load task. Please try again.';
-            return of(null);
-          })
-        );
+        return this.fetchData(taskId);
       }),
-      // Null is handled via errorMessage — cast here so the template type stays clean
       map((data) => data as TaskViewData)
     );
   }
 
-  // Open the inline editor for a specific field, pre-populated with the current value
+  private fetchData(taskId: string): Observable<TaskViewData | null> {
+    return combineLatest([
+      this.taskService.getById(taskId),
+      this.subtaskService.getAllByTask(taskId),
+    ]).pipe(
+      map(([task, subtasks]) => ({ task, subtasks })),
+      catchError(() => {
+        this.errorMessage = 'Failed to load task. Please try again.';
+        return of(null);
+      })
+    );
+  }
+
+  private refresh(): void {
+    if (this.currentTaskId) {
+      this.data$ = this.fetchData(this.currentTaskId).pipe(
+        map((data) => data as TaskViewData)
+      );
+    }
+  }
+
+  // --- Task field editing ---
+
   startEdit(field: string, currentValue: unknown): void {
     this.editingField = field;
     this.editForm.patchValue({ [field]: currentValue });
   }
 
-  // Close the editor without saving
   cancelEdit(): void {
     this.editingField = null;
   }
 
-  // Send the edited field value to the backend via PATCH, then refresh the data stream
   saveEdit(task: Todo): void {
     if (!this.editingField) return;
 
@@ -94,17 +112,7 @@ export class TaskView implements OnInit {
     this.taskService.patch(task.taskId, { [field]: value }).subscribe({
       next: () => {
         this.editingField = null;
-        // Re-assign data$ to trigger a fresh fetch after the save
-        this.data$ = combineLatest([
-          this.taskService.getById(task.taskId),
-          this.subtaskService.getAllByTask(task.taskId),
-        ]).pipe(
-          map(([t, subtasks]) => ({ task: t, subtasks })),
-          catchError(() => {
-            this.errorMessage = 'Failed to reload task after save.';
-            return of(null as unknown as TaskViewData);
-          })
-        );
+        this.refresh();
       },
       error: () => {
         this.errorMessage = 'Failed to save changes. Please try again.';
@@ -112,7 +120,50 @@ export class TaskView implements OnInit {
     });
   }
 
-  // Navigate back to the home task list
+  // --- Subtask add/delete ---
+
+  toggleAddSubtaskForm(): void {
+    this.showAddSubtaskForm = !this.showAddSubtaskForm;
+    if (!this.showAddSubtaskForm) this.addSubtaskForm.reset();
+  }
+
+  submitAddSubtask(): void {
+    if (this.addSubtaskForm.invalid || !this.currentTaskId) return;
+
+    const { title, description, dueDate } = this.addSubtaskForm.value;
+
+    const newSubtask: Partial<Subtask> = {
+      title: title!,
+      description: description ?? '',
+      dueDate: dueDate!,
+      isCompleted: false,
+      todo: { taskId: this.currentTaskId },
+    };
+
+    this.subtaskService.create(newSubtask).subscribe({
+      next: () => {
+        this.addSubtaskForm.reset();
+        this.showAddSubtaskForm = false;
+        this.refresh();
+      },
+      error: () => {
+        this.errorMessage = 'Failed to create subtask. Please try again.';
+      },
+    });
+  }
+
+  deleteSubtask(event: MouseEvent, subtaskId: string): void {
+    // Prevent click bubbling to the routerLink on the li
+    event.stopPropagation();
+
+    this.subtaskService.delete(subtaskId).subscribe({
+      next: () => this.refresh(),
+      error: () => {
+        this.errorMessage = 'Failed to delete subtask. Please try again.';
+      },
+    });
+  }
+
   goBack(): void {
     this.router.navigate(['/home']);
   }
