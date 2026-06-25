@@ -28,7 +28,13 @@
         autocomplete="new-password"
       />
       @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-        <span class="field-error">Password must be at least 6 characters.</span>
+        @if (registerForm.get('password')?.hasError('required')) {
+          <span class="field-error">Password is required.</span>
+        } @else if (registerForm.get('password')?.hasError('minlength') || registerForm.get('password')?.hasError('maxlength')) {
+          <span class="field-error">Password must be between 5 and 15 characters.</span>
+        } @else if (registerForm.get('password')?.hasError('complexity')) {
+          <span class="field-error">Password must contain an uppercase letter, a lowercase letter, a number, and a special character.</span>
+        }
       }
     </div>
 

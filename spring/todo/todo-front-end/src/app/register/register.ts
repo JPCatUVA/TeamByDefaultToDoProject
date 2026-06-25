@@ -1,9 +1,17 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth-service';
 import { switchMap } from 'rxjs/operators';
+
+// Mirrors the backend hasCorrectChars() regex:
+// must contain at least one lowercase, one uppercase, one digit, one special character
+function passwordComplexity(control: AbstractControl): ValidationErrors | null {
+  const value: string = control.value ?? '';
+  const valid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).*$/.test(value);
+  return valid ? null : { complexity: true };
+}
 
 @Component({
   selector: 'app-register',
@@ -19,7 +27,8 @@ export class Register {
 
   registerForm = this.fb.group({
     username: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    // Backend: 5-15 chars, uppercase, lowercase, digit, special character
+    password: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(15), passwordComplexity]],
   });
 
   errorMessage: string | null = null;
