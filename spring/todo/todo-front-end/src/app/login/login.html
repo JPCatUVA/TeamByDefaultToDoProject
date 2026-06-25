@@ -9,11 +9,11 @@
       <input
         id="username"
         type="email"
-        formControlName="username"
+        formControlName="email"
         placeholder="you@example.com"
         autocomplete="email"
       />
-      @if (loginForm.get('username')?.invalid && loginForm.get('username')?.touched) {
+      @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
         <span class="field-error">Please enter a valid email address.</span>
       }
     </div>

@@ -14,13 +14,13 @@ export class AuthService {
   private readonly TOKEN_KEY = 'token';
   private readonly USER_ID_KEY = 'userId';
 
-  // POST /register — sends username + password, expects 201 Created
-  register(credentials: { username: string; password: string }) {
+  // POST /register — sends email + password, expects 201 Created
+  register(credentials: { email: string; password: string }) {
     return this.http.post<void>(`${this.BASE_URL}/register`, credentials);
   }
 
-  // POST /login — sends username + password, expects a JWT string back
-  login(credentials: { username: string; password: string }) {
+  // POST /login — sends email + password, expects a JWT string back
+  login(credentials: { email: string; password: string }) {
     return this.http.post(`${this.BASE_URL}/login`, credentials, { responseType: 'text' }).pipe(
       tap((token) => {
         // Store the token so it survives page refreshes

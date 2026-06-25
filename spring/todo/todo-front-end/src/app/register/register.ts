@@ -26,7 +26,7 @@ export class Register {
   private router = inject(Router);
 
   registerForm = this.fb.group({
-    username: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.email]],
     // Backend: 5-15 chars, uppercase, lowercase, digit, special character
     password: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(15), passwordComplexity]],
   });
@@ -40,8 +40,8 @@ export class Register {
     this.isLoading = true;
     this.errorMessage = null;
 
-    const { username, password } = this.registerForm.value;
-    const credentials = { username: username!, password: password! };
+    const { email, password } = this.registerForm.value;
+    const credentials = { email: email!, password: password! };
 
     // Register first, then immediately log in on success
     this.authService.register(credentials).pipe(

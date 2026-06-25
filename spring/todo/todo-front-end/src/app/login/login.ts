@@ -17,7 +17,7 @@ export class Login {
   private router = inject(Router);
 
   loginForm = this.fb.group({
-    username: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
 
@@ -30,9 +30,9 @@ export class Login {
     this.isLoading = true;
     this.errorMessage = null;
 
-    const { username, password } = this.loginForm.value;
+    const { email, password } = this.loginForm.value;
 
-    this.authService.login({ username: username!, password: password! }).subscribe({
+    this.authService.login({ email: email!, password: password! }).subscribe({
       next: () => {
         this.isLoading = false;
         this.router.navigate(['/home']);
