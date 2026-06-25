@@ -1,1 +1,44 @@
-<p>login works!</p>
+<div class="login-container">
+  <h1>Welcome Back</h1>
+  <p class="subtitle">Sign in to view your tasks</p>
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+
+    <div class="form-field">
+      <label for="username">Email</label>
+      <input
+        id="username"
+        type="email"
+        formControlName="username"
+        placeholder="you@example.com"
+        autocomplete="email"
+      />
+      @if (loginForm.get('username')?.invalid && loginForm.get('username')?.touched) {
+        <span class="field-error">Please enter a valid email address.</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        placeholder="••••••••"
+        autocomplete="current-password"
+      />
+      @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+        <span class="field-error">Password is required.</span>
+      }
+    </div>
+
+    @if (errorMessage) {
+      <p class="login-error">{{ errorMessage }}</p>
+    }
+
+    <button type="submit" [disabled]="loginForm.invalid || isLoading">
+      {{ isLoading ? 'Signing in...' : 'Sign In' }}
+    </button>
+
+  </form>
+</div>
