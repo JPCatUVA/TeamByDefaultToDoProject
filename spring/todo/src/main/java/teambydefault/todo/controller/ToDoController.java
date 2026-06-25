@@ -56,6 +56,10 @@ public class ToDoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
+        if (toDo.getTitle() == null || toDo.getTitle().isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         User user = userRepo.findById(toDo.getUser().getId()).orElse(null);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
