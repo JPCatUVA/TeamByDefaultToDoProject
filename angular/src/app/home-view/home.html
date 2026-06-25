@@ -1,0 +1,61 @@
+<div class="home-container">
+  <header class="home-header">
+    <h1>My Tasks</h1>
+    <button class="add-btn" (click)="toggleAddForm()">
+      {{ showAddForm ? 'Cancel' : '+ Add Task' }}
+    </button>
+  </header>
+
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  <!-- Add task form — shown when showAddForm is true -->
+  @if (showAddForm) {
+    <form class="add-form" [formGroup]="addForm" (ngSubmit)="submitAdd()">
+      <div class="form-field">
+        <label for="title">Title</label>
+        <input id="title" type="text" formControlName="title" placeholder="Task title" />
+        @if (addForm.get('title')?.invalid && addForm.get('title')?.touched) {
+          <span class="field-error">Title is required.</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="description">Description</label>
+        <textarea id="description" formControlName="description" placeholder="Optional description"></textarea>
+      </div>
+
+      <div class="form-field">
+        <label for="dueDate">Due Date</label>
+        <input id="dueDate" type="datetime-local" formControlName="dueDate" />
+        @if (addForm.get('dueDate')?.invalid && addForm.get('dueDate')?.touched) {
+          <span class="field-error">Due date is required.</span>
+        }
+      </div>
+
+      <button type="submit" [disabled]="addForm.invalid">Save Task</button>
+    </form>
+  }
+
+  @if (tasks$ | async; as tasks) {
+    @if (tasks.length === 0 && !errorMessage) {
+      <p class="empty">No tasks found. You're all caught up!</p>
+    }
+
+    @if (tasks.length > 0) {
+      <ul class="task-list">
+        @for (task of tasks; track task.taskId) {
+          <li class="task-item" [class.completed]="task.completed" [routerLink]="['/task', task.taskId]">
+            <div class="task-info">
+              <div class="task-title">{{ task.title }}</div>
+              <div class="task-due">Due: {{ task.dueDate | date:'mediumDate' }}</div>
+              <div class="task-status">{{ task.completed ? 'Completed' : 'Pending' }}</div>
+            </div>
+            <button class="delete-btn" (click)="deleteTask($event, task.taskId)">Delete</button>
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>

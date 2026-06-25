@@ -1,0 +1,90 @@
+<div class="subtask-view-container">
+
+  <button class="back-btn" (click)="goBack()">← Back to Task</button>
+
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  @if (subtask$ | async; as subtask) {
+
+    <div class="subtask-detail">
+
+      <!-- Title -->
+      <div class="subtask-field">
+        <span class="field-label">Title</span>
+        @if (editingField === 'title') {
+          <div class="edit-row">
+            <input [formControl]="$any(editForm.get('title'))" type="text" />
+            <button (click)="saveEdit(subtask)" [disabled]="editForm.get('title')?.invalid">Save</button>
+            <button (click)="cancelEdit()">Cancel</button>
+          </div>
+        } @else {
+          <div class="field-value">
+            {{ subtask.title }}
+            <button class="edit-btn" (click)="startEdit('title', subtask.title)">Edit</button>
+          </div>
+        }
+      </div>
+
+      <!-- Description -->
+      <div class="subtask-field">
+        <span class="field-label">Description</span>
+        @if (editingField === 'description') {
+          <div class="edit-row">
+            <textarea [formControl]="$any(editForm.get('description'))"></textarea>
+            <button (click)="saveEdit(subtask)">Save</button>
+            <button (click)="cancelEdit()">Cancel</button>
+          </div>
+        } @else {
+          <div class="field-value">
+            {{ subtask.description || 'No description provided.' }}
+            <button class="edit-btn" (click)="startEdit('description', subtask.description)">Edit</button>
+          </div>
+        }
+      </div>
+
+      <!-- Due Date -->
+      <div class="subtask-field">
+        <span class="field-label">Due Date</span>
+        @if (editingField === 'dueDate') {
+          <div class="edit-row">
+            <input [formControl]="$any(editForm.get('dueDate'))" type="datetime-local" />
+            <button (click)="saveEdit(subtask)" [disabled]="editForm.get('dueDate')?.invalid">Save</button>
+            <button (click)="cancelEdit()">Cancel</button>
+          </div>
+        } @else {
+          <div class="field-value">
+            {{ subtask.dueDate | date:'medium' }}
+            <button class="edit-btn" (click)="startEdit('dueDate', subtask.dueDate)">Edit</button>
+          </div>
+        }
+      </div>
+
+      <!-- Completed -->
+      <div class="subtask-field">
+        <span class="field-label">Status</span>
+        @if (editingField === 'isCompleted') {
+          <div class="edit-row">
+            <label>
+              <input type="checkbox" [formControl]="$any(editForm.get('isCompleted'))" />
+              Completed
+            </label>
+            <button (click)="saveEdit(subtask)">Save</button>
+            <button (click)="cancelEdit()">Cancel</button>
+          </div>
+        } @else {
+          <div class="field-value">
+            <span [class.badge-complete]="subtask.isCompleted" [class.badge-pending]="!subtask.isCompleted">
+              {{ subtask.isCompleted ? 'Completed' : 'Pending' }}
+            </span>
+            <button class="edit-btn" (click)="startEdit('isCompleted', subtask.isCompleted)">Edit</button>
+          </div>
+        }
+      </div>
+
+    </div>
+
+  }
+
+</div>
