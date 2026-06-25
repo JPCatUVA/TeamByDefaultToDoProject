@@ -94,7 +94,8 @@
       } @else {
         <ul class="subtask-list">
           @for (sub of data.subtasks; track sub.id) {
-            <li class="subtask-item" [class.completed]="sub.isCompleted">
+            <li class="subtask-item" [class.completed]="sub.isCompleted"
+                [routerLink]="['/task', data.task.taskId, 'subtask', sub.id]">
               <div class="subtask-title">{{ sub.title }}</div>
               <div class="subtask-due">Due: {{ sub.dueDate | date:'mediumDate' }}</div>
             </li>

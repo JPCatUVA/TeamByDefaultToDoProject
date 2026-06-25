@@ -4,6 +4,7 @@ import { guestGuard } from './guards/guest-guard';
 import { Login } from './login/login';
 import { Home } from './home-view/home';
 import { TaskView } from './task-view/task-view';
+import { SubtaskView } from './subtask-view/subtask-view';
 
 export const routes: Routes = [
   // Default redirect
@@ -15,6 +16,7 @@ export const routes: Routes = [
   // Protected routes — blocked until user is logged in
   { path: 'home', component: Home, canActivate: [loginAuthGuard] },
   { path: 'task/:taskId', component: TaskView, canActivate: [loginAuthGuard] },
+  { path: 'task/:taskId/subtask/:subtaskId', component: SubtaskView, canActivate: [loginAuthGuard] },
 
   // Fallback for unknown paths
   { path: '**', redirectTo: 'login' },
