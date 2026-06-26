@@ -44,9 +44,7 @@ public class ToDoService {
             if (patch.getTitle() != null) existing.setTitle(patch.getTitle());
             if (patch.getDescription() != null) existing.setDescription(patch.getDescription());
             if (patch.getDueDate() != null) existing.setDueDate(patch.getDueDate());
-            // isCompleted is a primitive boolean — use a wrapper field pattern if needed;
-            // for now, always apply it when explicitly included in the patch body
-            existing.setCompleted(patch.isCompleted());
+            if (patch.getIsCompleted() != null) existing.setIsCompleted(patch.getIsCompleted());
             return toDoRepo.save(existing);
         });
     }

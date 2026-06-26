@@ -45,7 +45,7 @@ export class TaskView implements OnInit {
     title:       ['', Validators.required],
     description: [''],
     dueDate:     ['', Validators.required],
-    completed:   [false],
+    isCompleted:   [false],
   });
 
   // Add subtask form
@@ -139,7 +139,7 @@ export class TaskView implements OnInit {
       title: title!,
       description: description ?? '',
       dueDate: dueDate!,
-      completed: false,
+      isCompleted: false,
       todo: { taskId: this.currentTaskId },
     };
 

@@ -85,7 +85,7 @@ export class Home implements OnInit {
       title: title!,
       description: description ?? '',
       dueDate: dueDate!,
-      completed: false,
+      isCompleted: false,
       user: { userId: userId },
     };
 

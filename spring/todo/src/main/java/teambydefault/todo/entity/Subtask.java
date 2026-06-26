@@ -47,5 +47,5 @@ public class Subtask {
     private LocalDateTime dueDate;
 
     @Column(name = "is_completed")
-    private boolean isCompleted;
+    private Boolean isCompleted;
 }
