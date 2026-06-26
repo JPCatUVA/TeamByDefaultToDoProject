@@ -1,0 +1,238 @@
+/* Home View Styles */
+
+/* Container */
+.home-container {
+  padding: var(--spacing-lg);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Header: flex row with title left, add button right */
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.home-header h1 {
+  font-size: var(--font-size-heading);
+  margin: 0;
+}
+
+/* Add Task button */
+.add-btn {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: background-color var(--transition-duration) ease,
+              filter var(--transition-duration) ease;
+}
+
+.add-btn:hover {
+  filter: brightness(0.9);
+}
+
+.add-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Add Task Form: card styling */
+.add-form {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+}
+
+/* Form fields within add-form (matches global form-field pattern) */
+.add-form .form-field {
+  margin-bottom: var(--spacing-md);
+}
+
+.add-form .form-field label {
+  display: block;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-sm);
+}
+
+.add-form .form-field input,
+.add-form .form-field textarea {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  transition: border-color var(--transition-duration) ease;
+}
+
+.add-form .form-field input:focus,
+.add-form .form-field textarea:focus {
+  outline: none;
+  border: 2px solid var(--color-primary);
+}
+
+.add-form .form-field textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Field validation error */
+.add-form .field-error {
+  display: block;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-sm);
+}
+
+/* Submit button within add-form */
+.add-form button[type="submit"] {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: background-color var(--transition-duration) ease,
+              filter var(--transition-duration) ease;
+}
+
+.add-form button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.add-form button[type="submit"]:not(:disabled):hover {
+  filter: brightness(0.9);
+}
+
+.add-form button[type="submit"]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Error message */
+.error {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Task List */
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Task Item: card with flex row */
+.task-item {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  padding: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: box-shadow var(--transition-duration) ease;
+}
+
+.task-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Task Info */
+.task-info {
+  flex: 1;
+}
+
+.task-title {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+}
+
+.task-due,
+.task-status {
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Completed task */
+.completed {
+  opacity: 0.6;
+}
+
+.completed .task-title {
+  text-decoration: line-through;
+}
+
+/* Delete button */
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-error);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-duration) ease;
+}
+
+.delete-btn:hover {
+  background-color: rgba(220, 38, 38, 0.1);
+}
+
+.delete-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Empty state message */
+.empty {
+  text-align: center;
+  color: var(--color-muted);
+  font-size: var(--font-size-base);
+  padding: var(--spacing-xl) 0;
+}
+
+/* Responsive: mobile stacking */
+@media (max-width: 767px) {
+  .home-container {
+    max-width: 100%;
+    padding: var(--spacing-md);
+  }
+
+  .home-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+
+  .add-btn {
+    min-height: 44px;
+  }
+
+  .task-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .delete-btn {
+    min-height: 44px;
+    align-self: flex-end;
+  }
+}
