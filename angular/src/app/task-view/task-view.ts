@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { combineLatest, Observable, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { Todo } from '../interfaces/Todo';
@@ -29,6 +29,9 @@ export class TaskView implements OnInit {
   private taskService = inject(TaskService);
   private subtaskService = inject(SubtaskService);
   private fb = inject(FormBuilder);
+
+  // Emits a value every time we want to reload the task + subtasks
+  private refreshTrigger$ = new BehaviorSubject<void>(undefined);
 
   // Observable that emits the task and its subtasks — consumed by the template via async pipe
   data$!: Observable<TaskViewData>;
@@ -65,7 +68,10 @@ export class TaskView implements OnInit {
           this.errorMessage = 'No task ID provided.';
           return of(null);
         }
-        return this.fetchData(taskId);
+        // Each time refreshTrigger$ emits, re-fetch the data for this taskId
+        return this.refreshTrigger$.pipe(
+          switchMap(() => this.fetchData(taskId))
+        );
       }),
       map((data) => data as TaskViewData)
     );
@@ -84,12 +90,9 @@ export class TaskView implements OnInit {
     );
   }
 
+  // Signal the BehaviorSubject to re-fetch the data
   private refresh(): void {
-    if (this.currentTaskId) {
-      this.data$ = this.fetchData(this.currentTaskId).pipe(
-        map((data) => data as TaskViewData)
-      );
-    }
+    this.refreshTrigger$.next();
   }
 
   // --- Task field editing ---

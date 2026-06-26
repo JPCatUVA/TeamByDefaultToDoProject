@@ -1,9 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, switchMap } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 import { Todo } from '../interfaces/Todo';
 import { TaskService } from '../services/task-service';
@@ -15,14 +15,17 @@ import { AuthService } from '../services/auth-service';
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home {
+export class Home implements OnInit {
 
   private tService = inject(TaskService);
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
+  // Emits a value every time we want to reload the task list
+  private refreshTrigger$ = new BehaviorSubject<void>(undefined);
+
   // Todos sorted by dueDate ascending (soonest first)
-  tasks$: Observable<Todo[]> = this.loadTasks();
+  tasks$!: Observable<Todo[]>;
 
   errorMessage: string | null = null;
   showAddForm = false;
@@ -32,6 +35,12 @@ export class Home {
     description: [''],
     dueDate:     ['', Validators.required],
   });
+
+  ngOnInit(): void {
+    this.tasks$ = this.refreshTrigger$.pipe(
+      switchMap(() => this.loadTasks())
+    );
+  }
 
   private loadTasks(): Observable<Todo[]> {
     const userId = this.authService.getUserId();
@@ -54,9 +63,9 @@ export class Home {
     );
   }
 
-  // Refresh the task list by re-assigning the observable
+  // Signal the BehaviorSubject to re-fetch the task list
   private refresh(): void {
-    this.tasks$ = this.loadTasks();
+    this.refreshTrigger$.next();
   }
 
   toggleAddForm(): void {
