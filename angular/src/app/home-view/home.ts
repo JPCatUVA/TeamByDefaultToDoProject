@@ -77,7 +77,7 @@ export class Home {
       description: description ?? '',
       dueDate: dueDate!,
       completed: false,
-      user: { id: userId },
+      user: { userId: userId },
     };
 
     this.tService.create(newTask).subscribe({

@@ -52,7 +52,7 @@ public class ToDoController {
     // Body: title, description, dueDate, userId (as a field inside the Todo body or resolved below)
     @PostMapping
     public ResponseEntity<Todo> createTask(@RequestBody Todo toDo) {
-        if (toDo.getUser() == null || toDo.getUser().getId() == null) {
+        if (toDo.getUser() == null || toDo.getUser().getUserId() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
@@ -60,7 +60,7 @@ public class ToDoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        User user = userRepo.findById(toDo.getUser().getId()).orElse(null);
+        User user = userRepo.findById(toDo.getUser().getUserId()).orElse(null);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

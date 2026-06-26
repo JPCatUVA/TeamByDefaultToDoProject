@@ -129,7 +129,7 @@
       @if (data.subtasks.length > 0) {
         <ul class="subtask-list">
           @for (sub of data.subtasks; track sub.id) {
-            <li class="subtask-item" [class.completed]="sub.isCompleted"
+            <li class="subtask-item" [class.completed]="sub.completed"
                 [routerLink]="['/task', data.task.taskId, 'subtask', sub.id]">
               <div class="subtask-info">
                 <div class="subtask-title">{{ sub.title }}</div>

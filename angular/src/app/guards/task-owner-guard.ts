@@ -20,7 +20,7 @@ export const taskOwnerGuard: CanActivateFn = (route, state) => {
   // Fetch the task and verify the logged-in user owns it
   return taskService.getById(taskId).pipe(
     map((task) => {
-      if (task.user.id === userId) {
+      if (task.user.userId === userId) {
         return true;
       }
       // Task exists but belongs to someone else

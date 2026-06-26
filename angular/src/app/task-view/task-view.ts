@@ -136,7 +136,7 @@ export class TaskView implements OnInit {
       title: title!,
       description: description ?? '',
       dueDate: dueDate!,
-      isCompleted: false,
+      completed: false,
       todo: { taskId: this.currentTaskId },
     };
 

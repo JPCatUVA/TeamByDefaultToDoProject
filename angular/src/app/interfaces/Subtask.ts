@@ -15,6 +15,6 @@ export interface Subtask {
   title: string;
   description: string;
   dueDate: string;
-  isCompleted: boolean;
+  completed: boolean;
   todo: { taskId: string };
 }

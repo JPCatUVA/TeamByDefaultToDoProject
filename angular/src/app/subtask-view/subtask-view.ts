@@ -29,7 +29,7 @@ export class SubtaskView implements OnInit {
   parentTaskId: string | null = null;
 
   // Tracks which field is currently open for editing — only one at a time
-  // Possible values: 'title' | 'description' | 'dueDate' | 'isCompleted' | null
+  // Possible values: 'title' | 'description' | 'dueDate' | 'completed' | null
   editingField: string | null = null;
 
   // Shared reactive form used for all inline edits
@@ -37,7 +37,7 @@ export class SubtaskView implements OnInit {
     title: ['', Validators.required],
     description: [''],
     dueDate: ['', Validators.required],
-    isCompleted: [false],
+    completed: [false],
   });
 
   ngOnInit(): void {
