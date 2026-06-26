@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { Subtask } from '../interfaces/Subtask';
@@ -20,6 +20,9 @@ export class SubtaskView implements OnInit {
   private router = inject(Router);
   private subtaskService = inject(SubtaskService);
   private fb = inject(FormBuilder);
+
+  // Emits a value every time we want to reload the subtask
+  private refreshTrigger$ = new BehaviorSubject<void>(undefined);
 
   // Observable of the subtask — consumed by the template via async pipe
   subtask$!: Observable<Subtask>;
@@ -51,15 +54,23 @@ export class SubtaskView implements OnInit {
           return of(null);
         }
 
-        return this.subtaskService.getById(subtaskId).pipe(
-          catchError(() => {
-            this.errorMessage = 'Failed to load subtask. Please try again.';
-            return of(null);
-          })
+        // Each time refreshTrigger$ emits, re-fetch the subtask
+        return this.refreshTrigger$.pipe(
+          switchMap(() => this.subtaskService.getById(subtaskId).pipe(
+            catchError(() => {
+              this.errorMessage = 'Failed to load subtask. Please try again.';
+              return of(null);
+            })
+          ))
         );
       }),
       map((subtask) => subtask as Subtask)
     );
+  }
+
+  // Signal the BehaviorSubject to re-fetch the subtask
+  private refresh(): void {
+    this.refreshTrigger$.next();
   }
 
   // Open the inline editor for a specific field, pre-populated with the current value
@@ -83,13 +94,7 @@ export class SubtaskView implements OnInit {
     this.subtaskService.patch(subtask.id, { [field]: value }).subscribe({
       next: () => {
         this.editingField = null;
-        // Re-assign subtask$ to trigger a fresh fetch after the save
-        this.subtask$ = this.subtaskService.getById(subtask.id).pipe(
-          catchError(() => {
-            this.errorMessage = 'Failed to reload subtask after save.';
-            return of(null as unknown as Subtask);
-          })
-        );
+        this.refresh();
       },
       error: () => {
         this.errorMessage = 'Failed to save changes. Please try again.';

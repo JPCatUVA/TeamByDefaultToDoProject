@@ -64,7 +64,7 @@ gradlew.bat clean
 
 ### Common Commands
 
-Run from `angular/todo/`:
+Run from `angular/`:
 
 ```bash
 # Install dependencies

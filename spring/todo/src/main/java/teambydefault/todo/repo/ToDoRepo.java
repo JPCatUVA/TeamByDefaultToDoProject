@@ -13,6 +13,6 @@ import teambydefault.todo.entity.User;
 @Repository
 public interface ToDoRepo extends JpaRepository<Todo, UUID> {
     List<Todo> findByUser(User user);
-    List<Todo> findByUserAndIsCompleted(User user, boolean isCompleted);
+    List<Todo> findByUserAndIsCompleted(User user, Boolean isCompleted);
     Optional<Todo> findByTitle(String title);
 }

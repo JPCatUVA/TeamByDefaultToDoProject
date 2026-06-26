@@ -12,13 +12,13 @@
     String description    → string
     LocalDateTime dueDate → string   (dates are serialized as ISO-8601 strings in JSON)
     boolean isCompleted   → boolean
-    User user             → { id: string }  (only the foreign key ID is needed on the frontend)
+    User user             → { userId: string }  (only the foreign key ID is needed on the frontend)
 */
 export interface Todo {
   taskId: string;
   title: string;
   description: string;
   dueDate: string;
-  completed: boolean;
-  user: { id: string };
+  isCompleted: boolean;
+  user: { userId: string };
 }

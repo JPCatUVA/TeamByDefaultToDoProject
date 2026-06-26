@@ -21,15 +21,14 @@ TeamByDefaultToDoProject/
 │           │       └── application.properties
 │           └── test/
 │               └── java/teambydefault/todo/   # Test source code
-├── angular/
-│   └── todo/              # Angular frontend (TypeScript / Node.js)
-│       ├── package.json
-│       ├── angular.json
-│       ├── tsconfig.json
-│       └── src/
-│           ├── app/       # Components, services, modules, routes
-│           ├── assets/
-│           └── environments/
+├── angular/               # Angular frontend (TypeScript / Node.js)
+│   ├── package.json
+│   ├── angular.json
+│   ├── tsconfig.json
+│   └── src/
+│       ├── app/       # Components, services, modules, routes
+│       ├── assets/
+│       └── environments/
 └── README.md
 ```
 

@@ -1,0 +1,48 @@
+/* =============================
+   App Component - Host & Footer Styles
+   ============================= */
+
+/* Prevent content from being hidden behind the fixed footer */
+:host {
+  display: block;
+  padding-bottom: 60px;
+}
+
+/* Fixed footer at viewport bottom */
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding: var(--spacing-sm) 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Logout button */
+.logout-btn {
+  background-color: transparent;
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  transition: background-color var(--transition-duration) ease,
+              color var(--transition-duration) ease;
+}
+
+/* Logout button hover state */
+.logout-btn:hover {
+  background-color: var(--color-error);
+  color: #ffffff;
+}
+
+/* Logout button keyboard focus */
+.logout-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

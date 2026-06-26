@@ -25,8 +25,23 @@ export class AuthService {
       tap((token) => {
         // Store the token so it survives page refreshes
         localStorage.setItem(this.TOKEN_KEY, token);
+        // Extract the user UUID from the JWT subject claim and persist it
+        const userId = this.extractUserIdFromToken(token);
+        if (userId) {
+          this.setUserId(userId);
+        }
       })
     );
+  }
+
+  // Decodes the JWT payload and returns the `sub` claim (userId), or null on any error
+  private extractUserIdFromToken(token: string): string | null {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.sub ?? null;
+    } catch {
+      return null;
+    }
   }
 
   // Clear stored credentials and go back to login

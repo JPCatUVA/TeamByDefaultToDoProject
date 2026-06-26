@@ -11,5 +11,5 @@ export const guestGuard: CanActivateFn = (route, state) => {
   }
 
   // Already logged in — redirect to todos instead
-  return router.createUrlTree(['/todos']);
+  return router.createUrlTree(['/home']);
 };

@@ -20,7 +20,7 @@ public class JwtUtility {
 
     public String generateToken(User user){
         return Jwts.builder()
-                .subject(user.getId().toString())// Who this token is for
+                .subject(user.getUserId().toString())// Who this token is for
                 .claim("email", user.getEmail())// extra information about the user we want to access
                 .issuedAt(new Date(System.currentTimeMillis())) // when the token was created
                 .expiration(new Date(System.currentTimeMillis() + 86400000)) // when the token expires (24hr)

@@ -1,0 +1,160 @@
+/* Login Component Styles */
+
+/* Container: viewport centering + card styling */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+}
+
+/* Heading */
+.login-container h1 {
+  font-size: var(--font-size-heading);
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Subtitle */
+.subtitle {
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+}
+
+/* Form */
+.login-form {
+  width: 100%;
+}
+
+/* Form fields */
+.form-field {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-field label {
+  display: block;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-sm);
+}
+
+.form-field input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  transition: border-color var(--transition-duration) ease;
+}
+
+.form-field input:focus {
+  outline: none;
+  border: 2px solid var(--color-primary);
+}
+
+/* Field validation error */
+.field-error {
+  display: block;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-sm);
+}
+
+/* Form-level login error */
+.login-error {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Submit button */
+button[type="submit"] {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: background-color var(--transition-duration) ease,
+              filter var(--transition-duration) ease;
+}
+
+/* Disabled submit button */
+button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Hover on enabled submit button */
+button[type="submit"]:not(:disabled):hover {
+  filter: brightness(0.9);
+}
+
+/* Keyboard focus on submit button */
+button[type="submit"]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Register link section */
+.register-link {
+  text-align: center;
+  margin-top: var(--spacing-md);
+}
+
+/* Link button */
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  padding: 0;
+  text-decoration: underline;
+}
+
+.link-btn:hover {
+  filter: brightness(0.9);
+}
+
+.link-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Responsive: mobile — full width with padding */
+@media (max-width: 767px) {
+  .login-container {
+    max-width: 100%;
+    padding: var(--spacing-md);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .form-field input,
+  button[type="submit"],
+  .link-btn {
+    min-height: 44px;
+  }
+}
+
+/* Responsive: desktop — constrained and centered */
+@media (min-width: 768px) {
+  .login-container {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}

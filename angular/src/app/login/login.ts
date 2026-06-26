@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -15,6 +15,7 @@ export class Login {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -37,9 +38,10 @@ export class Login {
         this.isLoading = false;
         this.router.navigate(['/home']);
       },
-      error: () => {
+      error: (err) => {
         this.isLoading = false;
-        this.errorMessage = 'Invalid username or password. Please try again.';
+        this.errorMessage =  'Invalid/Unregistered username or password. Please try again.';
+        this.cdr.detectChanges();
       },
     });
   }

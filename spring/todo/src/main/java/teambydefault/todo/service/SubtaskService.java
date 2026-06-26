@@ -38,6 +38,7 @@ public class SubtaskService {
             if (patch.getTitle() != null) existing.setTitle(patch.getTitle());
             if (patch.getDescription() != null) existing.setDescription(patch.getDescription());
             if (patch.getDueDate() != null) existing.setDueDate(patch.getDueDate());
+            if (patch.getIsCompleted() != null) existing.setIsCompleted(patch.getIsCompleted());
             return subtaskRepo.save(existing);
         });
     }
