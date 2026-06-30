@@ -18,6 +18,8 @@ repositories {
 }
 
 dependencies {
+	//For RestAssured
+	testImplementation ("io.rest-assured:rest-assured:6.0.0")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
 	compileOnly("org.projectlombok:lombok")
@@ -34,6 +36,14 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
 	testImplementation("com.h2database:h2:2.4.240")
 	testImplementation("net.jqwik:jqwik:1.9.2")
+
+	// For Cucumber later
+	// // https://mvnrepository.com/artifact/io.cucumber/cucumber-java
+    // testImplementation("io.cucumber:cucumber-java:7.33.0")
+    // // https://mvnrepository.com/artifact/io.cucumber/cucumber-junit-platform-engine
+    // testImplementation("io.cucumber:cucumber-junit-platform-engine:7.33.0")
+    // // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-suite
+    // testImplementation("org.junit.platform:junit-platform-suite:1.14.1")
 }
 
 tasks.withType<Test> {

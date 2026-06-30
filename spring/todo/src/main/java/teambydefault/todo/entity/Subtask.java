@@ -16,8 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+
 
 @Entity
 @Data
@@ -33,7 +32,7 @@ public class Subtask {
     // Foreign key to to_dos table on task_id
     @ManyToOne
     @JoinColumn(name = "task_id", referencedColumnName = "task_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Todo todo;
 
