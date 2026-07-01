@@ -36,14 +36,16 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.13.0")
 	testImplementation("com.h2database:h2:2.4.240")
 	testImplementation("net.jqwik:jqwik:1.9.2")
+	implementation("org.seleniumhq.selenium:selenium-java:4.45.0") // Selenium dependency
+	implementation("io.cucumber:cucumber-spring:7.34.4") // for Spring dependency injection in Cucumber
 
-	// For Cucumber later
+	// For Cucumber
 	// // https://mvnrepository.com/artifact/io.cucumber/cucumber-java
-    // testImplementation("io.cucumber:cucumber-java:7.33.0")
+	testImplementation("io.cucumber:cucumber-java:7.33.0")
     // // https://mvnrepository.com/artifact/io.cucumber/cucumber-junit-platform-engine
-    // testImplementation("io.cucumber:cucumber-junit-platform-engine:7.33.0")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.33.0")
     // // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-suite
-    // testImplementation("org.junit.platform:junit-platform-suite:1.14.1")
+    testImplementation("org.junit.platform:junit-platform-suite:6.0.3")
 }
 
 tasks.withType<Test> {
