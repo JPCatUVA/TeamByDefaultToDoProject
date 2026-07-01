@@ -2,7 +2,7 @@ package teambydefault.todo.rest_assured_tests;
 
 // The REST Assured team recommends including these static imports for ease of framework use
 import static io.restassured.RestAssured.*;
-import static io.restassured.matcher.RestAssuredMatchers.*;
+//import static io.restassured.matcher.RestAssuredMatchers.*;
 import static org.hamcrest.Matchers.*;
 
 import java.util.Optional;
@@ -18,7 +18,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
 import teambydefault.todo.entity.User;
-import teambydefault.todo.service.UserService;
+
 import teambydefault.todo.repo.UserRepo;
 
 import static org.junit.jupiter.api.Assertions.*;
