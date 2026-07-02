@@ -41,14 +41,16 @@ public class todoEditSteps {
 
     @Given("an authenticated user with an existing todo")
     public void anAuthenticatedUserWithAnExistingTodo() {
-        // Register a test user
+        String email = "cucumber-edit-" + UUID.randomUUID() + "@test.com";
+
         String userJson = """
                 {
-                    "email": "edit-test@cucumber.com",
+                    "email": "%s",
                     "password": "P@ssw0rd"
                 }
-                """;
+                """.formatted(email);
 
+        // Register a test user
         given()
             .contentType(ContentType.JSON)
             .body(userJson)
@@ -68,7 +70,7 @@ public class todoEditSteps {
         jwtToken = loginResponse.getBody().asString();
 
         // Look up the user ID from the database
-        userId = userRepo.findByEmail("edit-test@cucumber.com")
+        userId = userRepo.findByEmail(email)
                 .orElseThrow()
                 .getUserId()
                 .toString();

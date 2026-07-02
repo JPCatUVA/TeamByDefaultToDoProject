@@ -40,14 +40,16 @@ public class todoCreationSteps {
 
     @Given("a user exists in the system")
     public void aUserExistsInTheSystem() {
-        // Register a test user
+        String email = "cucumber-create-" + UUID.randomUUID() + "@test.com";
+
         String userJson = """
                 {
-                    "email": "cucumber@test.com",
+                    "email": "%s",
                     "password": "P@ssw0rd"
                 }
-                """;
+                """.formatted(email);
 
+        // Register a test user
         given()
             .contentType(ContentType.JSON)
             .body(userJson)
@@ -67,7 +69,7 @@ public class todoCreationSteps {
         jwtToken = loginResponse.getBody().asString();
 
         // Look up the user ID from the database
-        userId = userRepo.findByEmail("cucumber@test.com")
+        userId = userRepo.findByEmail(email)
                 .orElseThrow()
                 .getUserId()
                 .toString();
