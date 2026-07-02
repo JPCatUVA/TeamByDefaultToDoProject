@@ -246,6 +246,71 @@ public class RestAssuredTodoCreateEditDelete {
         Optional<Todo> deletedTodo = todoRepo.findById(UUID.fromString(taskId));
         assertFalse(deletedTodo.isPresent(), "Todo should no longer exist after deletion");
 
+    }
 
+    @Test
+    void createTodoNoTitle() {
+        // 1. Register and login to get a valid token
+        User testUser = new User();
+        testUser.setEmail("notitle@test.com");
+        testUser.setPassword("P@ssw0rd");
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(testUser)
+        .when()
+            .post("/register")
+        .then()
+            .statusCode(201);
+
+        String token =
+            given()
+                .contentType(ContentType.JSON)
+                .body(testUser)
+            .when()
+                .post("/login")
+            .then()
+                .statusCode(200)
+                .extract().body().asString();
+
+        UUID userId = userRepo.findByEmail("notitle@test.com").get().getUserId();
+
+        // 2. Attempt to create a Todo without a title
+        String requestBody = """
+                {
+                    "description": "No title provided",
+                    "user": { "userId": "%s" }
+                }
+                """.formatted(userId);
+
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer " + token)
+            .body(requestBody)
+        .when()
+            .post("/task")
+        .then()
+            .statusCode(400);
+    }
+
+    @Test
+    void createTodoBadToken() {
+        // Attempt to create a Todo using a completely invalid token
+        String requestBody = """
+                {
+                    "title": "Should Not Work",
+                    "description": "This request uses a bad token",
+                    "user": { "userId": "00000000-0000-0000-0000-000000000000" }
+                }
+                """;
+
+        given()
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer this.is.not.a.valid.jwt")
+            .body(requestBody)
+        .when()
+            .post("/task")
+        .then()
+            .statusCode(401);
     }
 }
