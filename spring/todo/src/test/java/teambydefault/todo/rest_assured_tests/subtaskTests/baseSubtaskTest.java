@@ -9,9 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInstance;
 
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
@@ -31,7 +29,6 @@ import java.util.UUID;
 //there is a problem with RestAssured.baseURI
 import io.restassured.RestAssured;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:test.properties")
 public abstract class baseSubtaskTest {
@@ -50,12 +47,19 @@ public abstract class baseSubtaskTest {
     protected Subtask st2 = new Subtask();
     protected String token;
     
-    @BeforeAll
+    @BeforeEach
     //put initial values in task/subtasks/token
     void initializeDB() throws Exception{
 
+        // Must configure REST Assured BEFORE making any HTTP calls
+        RestAssured.baseURI = "http://localhost";
+        RestAssured.port = port;
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+
         //create a token, this will also login a user
-        token = getAuthToken("email@test.com", "Password0!");
+        //unique email per test so registration never conflicts
+        String email = UUID.randomUUID().toString().substring(0, 8) + "@test.com";
+        token = getAuthToken(email, "Password0!");
 
         //get userId. Because we dont return a user object in our API, and so can't 
         //get its userId, we need to decode it from the JWT token.
@@ -100,17 +104,7 @@ public abstract class baseSubtaskTest {
 
     }
 
-    /**
-     * Runs before EACH test method. Points REST Assured at our running server so all
-     * given()/when()/then() chains hit the right host:port.
-     */
-    @BeforeEach
-    void setUp() {
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = port;
-        // adds automatic logging of request and response for failed REST Assured tests
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-    }
+
 
 
     /**

@@ -22,8 +22,7 @@ public class negativeSubtaskTests extends baseSubtaskTest {
                 "title", st1.getTitle(),
                 "description", st1.getDescription(),
                 "isCompleted", st1.getIsCompleted(),
-                "dueDate", st1.getDueDate().toString(),
-                "task", null
+                "dueDate", st1.getDueDate().toString()
                 
                 )
             )
