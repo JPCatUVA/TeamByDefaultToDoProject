@@ -3,7 +3,6 @@ package teambydefault.todo.rest_assured_tests.subtaskTests;
 
 //Recommended imports from RESTAssured
 import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
 
 //other imports
 import org.junit.jupiter.api.Test;
