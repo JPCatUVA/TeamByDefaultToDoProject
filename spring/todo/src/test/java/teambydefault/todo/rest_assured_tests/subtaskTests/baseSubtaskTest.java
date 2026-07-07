@@ -2,7 +2,6 @@ package teambydefault.todo.rest_assured_tests.subtaskTests;
 
 //Recommended imports from RESTAssured
 import static io.restassured.RestAssured.*;
-import static io.restassured.matcher.RestAssuredMatchers.*;
 import static org.hamcrest.Matchers.*;
 
 //other imports
@@ -31,7 +30,6 @@ import teambydefault.todo.entity.Todo;
 import teambydefault.todo.entity.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -47,11 +45,13 @@ public abstract class baseSubtaskTest {
     @LocalServerPort
     protected int port;
 
-    // String token = getAuthToken("email@test.com", "Password0!");
-    //add one user, one task, and two subtasks
+    //add one user, one task, and two subtasks,
+    //These java Objects were added when I was trying to to the RESTAssured tests
+    //in the subclasses by letting Jackson automatially serialize them into JSONs.
+    //It didn't work but I have left them in because I find it to still be a bit
+    //more re-usable than writing all those Map.of string values
     protected Todo testTask = new Todo();
     protected User testUser = new User();
-    protected ArrayList<Subtask> subTaskList = new ArrayList<Subtask>();
     protected Subtask st1 = new Subtask();
     protected Subtask st2 = new Subtask();
     protected String token;
@@ -59,23 +59,6 @@ public abstract class baseSubtaskTest {
     @BeforeAll
     //put initial values in task/subtasks/token
     void initializeDB() throws Exception{
-
-        // Set up RestAssured base config once for all tests
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = port;
-
-        // Use a custom ObjectMapper that ignores @JsonProperty(access = WRITE_ONLY)
-        // so that POJOs like Subtask serialize their 'todo' field in test requests
-        //KIROs fix
-        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(
-            ObjectMapperConfig.objectMapperConfig().jackson2ObjectMapperFactory((type, s) ->
-                JsonMapper.builder()
-                    .disable(MapperFeature.USE_ANNOTATIONS)
-                    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                    .addModule(new JavaTimeModule())
-                    .build()
-            )
-        );
 
         //create a token, this will also login a user
         token = getAuthToken("email@test.com", "Password0!");
@@ -120,11 +103,6 @@ public abstract class baseSubtaskTest {
         st2.setDueDate(LocalDateTime.MIN);
         st2.setIsCompleted(false);
         st2.setTodo(testTask);
-
-        //adds subtasks to list, maybe unnecessary
-        subTaskList.add(st1);
-        subTaskList.add(st2);
-
 
     }
 
