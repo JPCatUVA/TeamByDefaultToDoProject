@@ -40,7 +40,7 @@ public class positiveSubtaskTests extends baseSubtaskTest{
     .when()
         .post()
     .then()
-        .spec(authorizedResponseSpecSubtask(token))
+        .spec(responseSpecSubtask(200, true))
         .body("id", notNullValue())
         .body("title", equalTo("practiceSubTask"))
         .body("description", equalTo("this is for testing"))
@@ -76,7 +76,7 @@ public class positiveSubtaskTests extends baseSubtaskTest{
     .when()
         .delete("/{subtaskId}", subtaskId)
     .then()
-        .statusCode(204);
+        .spec(responseSpecSubtask(204, false));
 
     //verify it's actually gone
     given()
@@ -84,7 +84,7 @@ public class positiveSubtaskTests extends baseSubtaskTest{
     .when()
         .get("/{subtaskId}", subtaskId)
     .then()
-        .statusCode(404);
+        .spec(responseSpecSubtask(404, false));
     }
 
 
@@ -117,7 +117,7 @@ public class positiveSubtaskTests extends baseSubtaskTest{
     .when()
         .get("/{subtaskId}", subtaskId)
     .then()
-        .spec(authorizedResponseSpecSubtask(token))
+        .spec(responseSpecSubtask(200, true))
         .body("id", equalTo(subtaskId))
         .body("title", equalTo("practiceSubTask"))
         .body("description", equalTo("this is for testing"))
@@ -159,7 +159,7 @@ public class positiveSubtaskTests extends baseSubtaskTest{
     .when()
         .patch("/{subtaskId}", subtaskId)
     .then()
-        .spec(authorizedResponseSpecSubtask(token))
+        .spec(responseSpecSubtask(200, true))
         .body("id", equalTo(subtaskId))
         .body("title", equalTo("updatedSubTask"))
         .body("description", equalTo("this is also for testing"))
@@ -214,7 +214,7 @@ public class positiveSubtaskTests extends baseSubtaskTest{
     .when()
         .get()
     .then()
-        .spec(authorizedResponseSpecSubtask(token))
+        .spec(responseSpecSubtask(200, true))
         .body("size()", greaterThanOrEqualTo(2))
         .body("title", hasItems("practiceSubTask", "practiceSubTask2"))
         .body("id", hasItems(subtaskId1, subtaskId2));

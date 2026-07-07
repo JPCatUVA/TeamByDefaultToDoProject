@@ -143,16 +143,17 @@ public abstract class baseSubtaskTest {
         return rSpec;
     }
 
-    //the positive test HTTP responces will have the same responce code 
-    //and should all have JSON content that can potentially be de-serialized
-    protected ResponseSpecification authorizedResponseSpecSubtask(String authToken){
-        ResponseSpecification rSpec = new ResponseSpecBuilder()
-                                            .expectStatusCode(200)
-                                            .expectContentType(ContentType.JSON)
-                                            .expectHeader("Content-Type", containsString("application/json"))
-                                            .build();
+    //reusable response spec — pass expected status code and whether JSON body is expected
+    protected ResponseSpecification responseSpecSubtask(int expectedStatusCode, boolean expectJson){
+        ResponseSpecBuilder rSpec = new ResponseSpecBuilder()
+                                            .expectStatusCode(expectedStatusCode);
 
-        return rSpec;
+        if (expectJson) {
+            rSpec.expectContentType(ContentType.JSON)
+                   .expectHeader("Content-Type", containsString("application/json"));
+        }
+
+        return rSpec.build();
     }
 
     
