@@ -43,7 +43,8 @@ import io.restassured.RestAssured;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:test.properties")
 public abstract class baseSubtaskTest {
-        @LocalServerPort
+    
+    @LocalServerPort
     protected int port;
 
     // String token = getAuthToken("email@test.com", "Password0!");
