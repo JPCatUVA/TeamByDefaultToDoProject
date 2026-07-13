@@ -93,12 +93,12 @@ public abstract class baseSubtaskTest {
         //set subtasks internals
         st1.setTitle("practiceSubTask");
         st1.setDescription("this is for testing");
-        st1.setDueDate(LocalDateTime.MAX);
+        st1.setDueDate(LocalDateTime.of(1999, 12, 31, 23, 59, 59));
         st1.setIsCompleted(false);
         st1.setTodo(testTask);
         st2.setTitle("practiceSubTask2");
         st2.setDescription("this is also for testing");
-        st2.setDueDate(LocalDateTime.MIN);
+        st2.setDueDate(LocalDateTime.of(1968, 5, 25, 14, 30, 45));
         st2.setIsCompleted(false);
         st2.setTodo(testTask);
 
