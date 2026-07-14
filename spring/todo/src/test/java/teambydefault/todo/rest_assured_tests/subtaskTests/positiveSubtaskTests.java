@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.*;
 
 //other imports
 import org.junit.jupiter.api.Test;
-import java.time.LocalDateTime;
 import java.util.Map;
 
 public class positiveSubtaskTests extends baseSubtaskTest{
@@ -44,7 +43,7 @@ public class positiveSubtaskTests extends baseSubtaskTest{
         .body("id", notNullValue())
         .body("title", equalTo("practiceSubTask"))
         .body("description", equalTo("this is for testing"))
-        .body("dueDate", equalTo(LocalDateTime.MAX.toString()))
+        .body("dueDate", equalTo(st1.getDueDate().toString()))
         .body("isCompleted", equalTo(false));
     }
 
@@ -121,7 +120,7 @@ public class positiveSubtaskTests extends baseSubtaskTest{
         .body("id", equalTo(subtaskId))
         .body("title", equalTo("practiceSubTask"))
         .body("description", equalTo("this is for testing"))
-        .body("dueDate", equalTo(LocalDateTime.MAX.toString()))
+        .body("dueDate", equalTo(st1.getDueDate().toString()))
         .body("isCompleted", equalTo(false));
     }
 

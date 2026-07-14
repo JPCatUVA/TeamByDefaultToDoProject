@@ -13,20 +13,23 @@ import org.junit.platform.suite.api.Suite;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
+import teambydefault.todo.cucumber_tests.poms.LoginPage;
+import teambydefault.todo.cucumber_tests.poms.RegisterPage;
 
 @Suite
 @IncludeEngines("cucumber")
-@SelectPackages({
-    "features", 
-    "teambydefault.todo.cucumber_tests.steps"
-})
+@SelectPackages("teambydefault.todo.cucumber_tests")
 @ConfigurationParameter(
-    key = Constants.GLUE_PROPERTY_NAME, 
-    value = "teambydefault.todo.cucumber_tests.steps")
+    key = Constants.FEATURES_PROPERTY_NAME,
+    value = "src/test/resources/features")
 @ConfigurationParameter(
-    key = Constants.PLUGIN_PROPERTY_NAME, 
+    key = Constants.GLUE_PROPERTY_NAME,
+    value = "teambydefault.todo.cucumber_tests")
+@ConfigurationParameter(
+    key = Constants.PLUGIN_PROPERTY_NAME,
     value = "html:reports/cucumber-report.html"
 )
 @CucumberContextConfiguration
@@ -37,32 +40,33 @@ import org.springframework.test.context.TestPropertySource;
     locations = "classpath:test.properties"
 )
 public class CucumberRunner {
-    private WebDriver driver;
+
+    @Value("${server.port:8080}")
+    public int serverPort;
+
+    public WebDriver driver;
+    public LoginPage loginPage;
+    public RegisterPage registerPage;
 
     @Before
-    public void setup(){
-        ChromeOptions ops = new ChromeOptions();
-        ops.addArguments("--headless");
-
-        driver = new ChromeDriver(ops);
-
-        //Not being used currently, but here if it is needed
-        //driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+    public void setUp() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments(
+                "--headless=new",
+                "--disable-gpu",
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--window-size=1280,800");
+        driver = new ChromeDriver(options);
+        loginPage = new LoginPage(driver);
+        registerPage = new RegisterPage(driver);
     }
 
-    //Teardown as these are external resourses that need to be memory-managed
-    //manually
     @After
-    public void destroy(){
-        if(driver != null){
+    public void tearDown() {
+        if (driver != null) {
             driver.quit();
             driver = null;
         }
- 
-    }
-
-    //Driver Getter
-    public WebDriver getDriver(){
-        return driver;
     }
 }
