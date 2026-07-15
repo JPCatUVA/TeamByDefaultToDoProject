@@ -1,7 +1,37 @@
 Feature: Subtask Creation
-        All logged in users should be able to create a subtask for any task.
 
     Background: A user must be logged in and have a valid task created.
-        Given The user is 
-    Scenario: As
+        Given   The user is on the login page
+        When    The user enters a valid username
+        When    The user enters the corresponding password
+        When    The user is on their home page
+        And     There is a task present
+
+    Scenario Outline: As a user, I can create a nested subtask
+        Given   There is a task present
+        When    The user clicks on a task
+        When    The user clicks the Add Subtask button
+        When    The user enters Title "<title>", Description "<description>", and picks a Due Date "<date>"
+        And     The user clicks the Save Subtask button
+        Then    A Subtask is created and is viewable in the Subtasks list
+    
+    Examples:
+    |title|description|date|
+    |TaskWithDescription|It's me, im a Subtask|2027-12-25T23:59:59|
+    |TaskWithNoDescriptionInthePast||1066-01-01T01:01:01|
+
+
+    Scenario Outline: As a user, I cannot create a nested subtask with no title
+        Given   There is a task present
+        When    The user clicks on a task
+        When    The user clicks the Add Subtask button
+        When    The user enters Title "<title>", Description "<description>", and picks a Due Date "<date>"
+        And     The user clicks the Save Subtask button
+        Then    The Save Subtask button is invalid
+
+    Examples:
+    |title|description|date|
+    ||This task has no title|2027-12-25T23:59:59|
+    ||This task also has no title and is in the far past|1066-01-01T01:01:01|
+
 
