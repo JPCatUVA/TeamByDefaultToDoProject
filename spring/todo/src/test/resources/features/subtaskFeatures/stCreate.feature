@@ -6,11 +6,15 @@ Feature: Subtask Creation
         When    The user enters the corresponding password
         When    The user is on their home page
         And     There is a task present
+        And     The user clicks on a task
+        And     The user clicks the Add Subtask button
 
-    Scenario Outline: As a user, I can create a nested subtask
-        Given   There is a task present
-        When    The user clicks on a task
-        When    The user clicks the Add Subtask button
+
+    Scenario: As a user I should be allowed to not create a task if I change my mind midway 
+        When    The user clicks the Cancel button
+        Then    The Subtask editing fields should close and nothing is added
+
+    Scenario Outline: As a user, I can create a nested subtask with varied input
         When    The user enters Title "<title>", Description "<description>", and picks a Due Date "<date>"
         And     The user clicks the Save Subtask button
         Then    A Subtask is created and is viewable in the Subtasks list
@@ -22,9 +26,6 @@ Feature: Subtask Creation
 
 
     Scenario Outline: As a user, I cannot create a nested subtask with no title
-        Given   There is a task present
-        When    The user clicks on a task
-        When    The user clicks the Add Subtask button
         When    The user enters Title "<title>", Description "<description>", and picks a Due Date "<date>"
         And     The user clicks the Save Subtask button
         Then    The Save Subtask button is invalid
