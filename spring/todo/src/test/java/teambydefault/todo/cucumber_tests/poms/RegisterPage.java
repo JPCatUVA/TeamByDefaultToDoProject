@@ -1,6 +1,7 @@
 package teambydefault.todo.cucumber_tests.poms;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -28,20 +29,34 @@ public class RegisterPage {
         driver.get(REGISTER_URL);
     }
 
-    /** Enter a value into the email field. */
+    /** Enter a value into the email field and trigger Angular's change detection. */
     public void enterEmail(String email) {
         WebElement emailInput = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.id("username")));
         emailInput.clear();
         emailInput.sendKeys(email);
+        triggerInputEvent(emailInput);
     }
 
-    /** Enter a value into the password field. */
+    /** Enter a value into the password field and trigger Angular's change detection. */
     public void enterPassword(String password) {
         WebElement passwordInput = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.id("password")));
         passwordInput.clear();
         passwordInput.sendKeys(password);
+        triggerInputEvent(passwordInput);
+    }
+
+    /**
+     * Fires native 'input' and 'blur' events on an element so Angular's reactive
+     * form recognises the value, marks the control touched, and re-runs validators.
+     */
+    private void triggerInputEvent(WebElement element) {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript(
+                "arguments[0].dispatchEvent(new Event('input', {bubbles:true}));" +
+                "arguments[0].dispatchEvent(new Event('blur',  {bubbles:true}));",
+                element);
     }
 
     /** Click the "Create Account" submit button. */
@@ -51,8 +66,12 @@ public class RegisterPage {
         submitBtn.click();
     }
 
-    /** Return the current browser URL. */
+    /** Return the current browser URL, waiting up to 10 s for Angular's async navigation to complete. */
     public String getCurrentUrl() {
+        wait.until(driver -> {
+            String url = driver.getCurrentUrl();
+            return url != null && url.contains("/home");
+        });
         return driver.getCurrentUrl();
     }
 

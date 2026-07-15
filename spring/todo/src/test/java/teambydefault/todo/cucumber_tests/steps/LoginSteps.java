@@ -53,8 +53,10 @@ public class LoginSteps {
                 .then()
                 .extract().statusCode();
 
-        // 201 = created, 409 = already exists — both are fine for this step
-        assertThat(status).isIn(201, 409);
+        // 201 = created, 400 or 409 = already exists — all fine for this step.
+        // This backend returns 400 (not 409) when the email is already registered,
+        // so we accept 400 here to keep the Background idempotent across test runs.
+        assertThat(status).isIn(201, 400, 409);
     }
 
     /** Navigate to the login page (simulates an unauthorized user hitting the site). */

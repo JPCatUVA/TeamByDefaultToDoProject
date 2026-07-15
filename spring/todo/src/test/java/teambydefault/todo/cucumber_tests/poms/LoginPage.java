@@ -58,8 +58,12 @@ public class LoginPage {
         registerLink.click();
     }
 
-    /** Return the current browser URL. */
+    /** Return the current browser URL, waiting up to 10 s for Angular's async navigation to complete. */
     public String getCurrentUrl() {
+        wait.until(driver -> {
+            String url = driver.getCurrentUrl();
+            return url != null && url.contains("/home");
+        });
         return driver.getCurrentUrl();
     }
 
