@@ -5,12 +5,12 @@ Feature: Subtask Read
         When    The user enters a valid username
         When    The user enters the corresponding password
         When    The user is on their home page
-        And     There is a task present
+        And     There is a task submitted
         And     The user clicks on a valid task
 
 
     Scenario: As a user I should be able to view the list of Subtasks
-        When    There are one or more Subtasks present
+        When    There are one or more Subtasks submitted
         Then    The subtasks should be viewable on the page
 
     Scenario: As a user I should be able to view a specific Subtask
