@@ -18,6 +18,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import teambydefault.todo.cucumber_tests.poms.LoginPage;
 import teambydefault.todo.cucumber_tests.poms.RegisterPage;
+import teambydefault.todo.cucumber_tests.poms.SubtaskPage;
+import teambydefault.todo.cucumber_tests.poms.TodoPage;
 
 @Suite
 @IncludeEngines("cucumber")
@@ -47,6 +49,8 @@ public class CucumberRunner {
     public WebDriver driver;
     public LoginPage loginPage;
     public RegisterPage registerPage;
+    public SubtaskPage subtaskPage;
+    public TodoPage todoPage;
 
     @Before
     public void setUp() {
@@ -60,6 +64,8 @@ public class CucumberRunner {
         driver = new ChromeDriver(options);
         loginPage = new LoginPage(driver);
         registerPage = new RegisterPage(driver);
+        subtaskPage = new SubtaskPage(driver);
+        todoPage = new TodoPage(driver);
     }
 
     @After

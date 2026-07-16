@@ -1,0 +1,81 @@
+package teambydefault.todo.cucumber_tests.poms;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+
+/**
+ * Page Object Model for the Subtasks page (http://localhost:4200/subtask).
+ */
+public class SubtaskPage {
+private static final String SUBTASK_URL = "http://localhost:4200/subtask";
+
+    private final WebDriver driver;
+    private final WebDriverWait wait;
+
+    @FindBy(id = "")
+    private WebElement elm1;
+
+    public SubtaskPage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+        
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    /** Navigate directly to the registration page. */
+    public void open() {
+        driver.get(SUBTASK_URL);
+    }
+
+    /** Enter a value into the email field. */
+    public void enterEmail(String email) {
+        WebElement emailInput = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.id("username")));
+        emailInput.clear();
+        emailInput.sendKeys(email);
+    }
+
+    /** Enter a value into the password field. */
+    public void enterPassword(String password) {
+        WebElement passwordInput = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.id("password")));
+        passwordInput.clear();
+        passwordInput.sendKeys(password);
+    }
+
+    /** Click the "Create Account" submit button. */
+    public void clickRegisterButton() {
+        WebElement submitBtn = wait.until(
+                ExpectedConditions.elementToBeClickable(By.cssSelector("button[type='submit']")));
+        submitBtn.click();
+    }
+
+    /** Return the current browser URL. */
+    public String getCurrentUrl() {
+        return driver.getCurrentUrl();
+    }
+
+    /**
+     * Return the text of the visible error message element, or an empty string
+     * if no error is currently displayed.
+     */
+    public String getErrorMessage() {
+        var errors = driver.findElements(By.cssSelector("p.register-error"));
+        if (!errors.isEmpty()) {
+            return errors.get(0).getText();
+        }
+        // Also surface inline field-level errors
+        var fieldErrors = driver.findElements(By.cssSelector("span.field-error"));
+        if (!fieldErrors.isEmpty()) {
+            return fieldErrors.get(0).getText();
+        }
+        return "";
+    }
+}
