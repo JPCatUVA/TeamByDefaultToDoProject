@@ -14,7 +14,8 @@ import teambydefault.todo.cucumber_tests.CucumberRunner;
 
 /**
  * Cucumber step definitions for stRead.feature (Subtask Read).
- * Uses the TodoPage and SubtaskPage POMs via the shared CucumberRunner.
+ * Background steps are shared from SubtaskCreateSteps (login) and
+ * SubtaskDeleteSteps (task setup).
  */
 public class SubtaskReadSteps {
 
@@ -23,10 +24,6 @@ public class SubtaskReadSteps {
     public SubtaskReadSteps(CucumberRunner runner) {
         this.runner = runner;
     }
-
-    // ── Background steps ─────────────────────────────────────────────────────
-    // Shared steps (login, home, task submitted, clicks on valid task) are
-    // defined in SubtaskCreateSteps and SubtaskDeleteSteps.
 
     // ── Scenario: View list of subtasks ──────────────────────────────────────
 
@@ -47,9 +44,9 @@ public class SubtaskReadSteps {
         runner.todoPage.clickFirstSubtask();
     }
 
-    @Then("The user is taken to the subtasks view")
-    public void the_user_is_taken_to_the_subtasks_view() {
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+    @Then("The user is taken to the subtask detail view")
+    public void the_user_is_taken_to_the_subtask_detail_view() {
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(ExpectedConditions.urlContains("/subtask/"));
         assertTrue(runner.driver.getCurrentUrl().contains("/subtask/"),
                 "Expected URL to contain '/subtask/' indicating the subtask detail view");
@@ -59,13 +56,12 @@ public class SubtaskReadSteps {
 
     @When("The user tries to manually enter a subtask path to a subtask that is not theirs")
     public void the_user_tries_to_manually_enter_a_subtask_path_to_a_subtask_that_is_not_theirs() {
-        // Navigate to a subtask URL that belongs to another user (non-existent/unauthorized)
         runner.subtaskPage.open(99999, 99999);
     }
 
     @Then("The page will display the error message {string}")
     public void the_page_will_display_the_error_message(String expectedMessage) {
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(d -> !runner.subtaskPage.getErrorMessage().isEmpty());
         String actual = runner.subtaskPage.getErrorMessage();
         assertEquals(expectedMessage, actual,

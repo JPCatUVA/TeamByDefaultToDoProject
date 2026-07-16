@@ -1,3 +1,4 @@
+@task
 Feature: Todo Creation
 
   Background:

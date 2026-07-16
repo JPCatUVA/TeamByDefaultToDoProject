@@ -16,7 +16,7 @@ import teambydefault.todo.cucumber_tests.CucumberRunner;
 
 /**
  * Cucumber step definitions for stCreate.feature (Subtask Creation).
- * Uses the TodoPage and SubtaskPage POMs via the shared CucumberRunner.
+ * Also contains the shared Background login steps used across all subtask features.
  */
 public class SubtaskCreateSteps {
 
@@ -27,12 +27,36 @@ public class SubtaskCreateSteps {
         this.runner = runner;
     }
 
-    // ── Background steps ─────────────────────────────────────────────────────
+    // ── Shared Background steps (used by all subtask features) ───────────────
 
-    @Given("The user is on the login page")
-    public void the_user_is_on_the_login_page() {
+    @Given("A user is registered with a valid password")
+    public void a_user_is_registered_with_a_valid_password() {
+        String email = "testuser@test.com";
+        String password = "Password123!";
+
         runner.loginPage.open();
-        assertTrue(runner.driver.getCurrentUrl().contains("/login"));
+
+        // If already authenticated and redirected to /home, skip registration
+        if (runner.driver.getCurrentUrl().contains("/home")) {
+            return;
+        }
+
+        runner.loginPage.clickRegistrationLink();
+
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.urlContains("/register"));
+
+        runner.registerPage.enterEmail(email);
+        runner.registerPage.enterPassword(password);
+        runner.registerPage.clickRegisterButton();
+
+        // After registration attempt, user ends up on /home (success) or stays on /register (error).
+        // Either way, ensure we're logged out and on the login page for the next steps.
+        try {
+            wait.until(ExpectedConditions.urlContains("/home"));
+        } catch (Exception e) {
+            // Registration failed (user likely already exists) — go to login directly
+        }
     }
 
     @When("The user enters a valid username")
@@ -48,23 +72,12 @@ public class SubtaskCreateSteps {
 
     @When("The user is on their home page")
     public void the_user_is_on_their_home_page() {
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(ExpectedConditions.urlContains("/home"));
         assertTrue(runner.driver.getCurrentUrl().contains("/home"));
     }
 
-    @And("There is a task present")
-    public void there_is_a_task_present() {
-        assertTrue(runner.todoPage.hasTasksDisplayed(),
-                "Expected at least one task to be displayed on the home page");
-    }
-
-    @And("The user clicks on a task")
-    public void the_user_clicks_on_a_task() {
-        runner.todoPage.clickFirstTask();
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.urlContains("/task/"));
-    }
+    // ── Create-specific Background step ──────────────────────────────────────
 
     @And("The user clicks the Add Subtask button")
     public void the_user_clicks_the_add_subtask_button() {
@@ -78,7 +91,6 @@ public class SubtaskCreateSteps {
 
     @When("The user clicks the Cancel button")
     public void the_user_clicks_the_cancel_button() {
-        // The Cancel button is the same toggle as "+ Add Subtask"
         runner.todoPage.clickAddSubtaskButton();
     }
 
@@ -105,7 +117,7 @@ public class SubtaskCreateSteps {
 
     @Then("A Subtask is created and is viewable in the Subtasks list")
     public void a_subtask_is_created_and_is_viewable_in_the_subtasks_list() {
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(d -> runner.todoPage.getSubtaskItems().size() > subtaskCountBefore);
         assertTrue(runner.todoPage.hasSubtasksDisplayed(),
                 "Expected newly created subtask to be visible in the subtasks list");

@@ -14,8 +14,9 @@ import java.time.Duration;
 import teambydefault.todo.cucumber_tests.CucumberRunner;
 
 /**
- * Cucumber step definitions for stDelete.feature (Subtask Delete).
- * Uses the TodoPage POM via the shared CucumberRunner.
+ * Cucumber step definitions for stDelete.feature (Subtask Deletion).
+ * Also contains the shared Background steps for task setup used across
+ * all subtask features (Create, Read, Update, Delete).
  */
 public class SubtaskDeleteSteps {
 
@@ -26,28 +27,42 @@ public class SubtaskDeleteSteps {
         this.runner = runner;
     }
 
-    // ── Background steps ─────────────────────────────────────────────────────
-    // Shared login/home steps are defined in SubtaskCreateSteps.
+    // ── Shared Background steps (used by all subtask features) ───────────────
 
     @And("There is a task submitted")
     public void there_is_a_task_submitted() {
-        assertTrue(runner.todoPage.hasTasksDisplayed(),
-                "Expected at least one task to be present on the home page");
+        runner.todoPage.clickAddTaskButton();
+        runner.todoPage.fillAddTaskForm("Test Task", "A task for subtask testing", "2027-12-31T23:59");
+        runner.todoPage.clickSaveTaskButton();
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
+        wait.until(d -> runner.todoPage.hasTasksDisplayed());
     }
 
     @And("The user clicks on a valid task")
     public void the_user_clicks_on_a_valid_task() {
         runner.todoPage.clickFirstTask();
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(ExpectedConditions.urlContains("/task/"));
+    }
+
+    @Then("The user is on the corresponding task page")
+    public void the_user_is_on_the_corresponding_task_page() {
+        assertTrue(runner.driver.getCurrentUrl().contains("/task/"),
+                "Expected URL to contain '/task/' indicating the task detail page");
     }
 
     // ── Scenario: Delete a subtask ───────────────────────────────────────────
 
     @When("There are one or more Subtasks submitted")
     public void there_are_one_or_more_subtasks_submitted() {
-        assertTrue(runner.todoPage.hasSubtasksDisplayed(),
-                "Expected at least one subtask to be present");
+        // Create a subtask if none exist yet
+        if (!runner.todoPage.hasSubtasksDisplayed()) {
+            runner.todoPage.clickAddSubtaskButton();
+            runner.todoPage.fillAddSubtaskForm("Setup Subtask", "Auto-created for test", "2027-12-31T23:59");
+            runner.todoPage.clickSaveSubtaskButton();
+            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
+            wait.until(d -> runner.todoPage.hasSubtasksDisplayed());
+        }
         subtaskCountBefore = runner.todoPage.getSubtaskItems().size();
     }
 
@@ -56,9 +71,9 @@ public class SubtaskDeleteSteps {
         runner.todoPage.clickDeleteFirstSubtask();
     }
 
-    @Then("The task is removed from the list")
-    public void the_task_is_removed_from_the_list() {
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+    @Then("The Subtask is removed from the list")
+    public void the_subtask_is_removed_from_the_list() {
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(d -> runner.todoPage.getSubtaskItems().size() < subtaskCountBefore);
         int subtaskCountAfter = runner.todoPage.getSubtaskItems().size();
         assertTrue(subtaskCountAfter < subtaskCountBefore,

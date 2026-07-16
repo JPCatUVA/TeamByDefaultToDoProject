@@ -38,7 +38,7 @@ public class todoEditSteps {
         runner.loginPage.open();
         runner.loginPage.clickRegistrationLink();
 
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(ExpectedConditions.urlContains("/register"));
 
         runner.registerPage.enterEmail(email);
@@ -109,7 +109,7 @@ public class todoEditSteps {
         runner.todoPage.clickEditSaveButton();
 
         // Wait for edit row to close
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(d -> {
             try {
                 return !runner.todoPage.isEditSaveButtonDisabled();
@@ -127,7 +127,7 @@ public class todoEditSteps {
     @When("the user sends a PATCH request to a non-existent todo with title {string}")
     public void patch_non_existent_todo(String title) {
         runner.driver.get("http://localhost:4200/task/99999999");
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(d -> !runner.todoPage.getErrorMessage().isEmpty()
                 || runner.driver.getCurrentUrl().contains("/task/99999999"));
         editAttemptedOnNonExistent = true;
@@ -138,7 +138,7 @@ public class todoEditSteps {
     @Then("the edit response status code should be {int}")
     public void verify_edit_status_code(int expectedStatus) {
         if (expectedStatus == 200) {
-            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
             wait.until(d -> {
                 try {
                     return !runner.todoPage.isEditSaveButtonDisabled();

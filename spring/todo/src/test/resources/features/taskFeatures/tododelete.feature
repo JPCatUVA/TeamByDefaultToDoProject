@@ -1,3 +1,4 @@
+@task
 Feature: Todo Deletion
 
   Background:

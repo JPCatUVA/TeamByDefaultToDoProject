@@ -39,7 +39,7 @@ public class todoCreationSteps {
         runner.loginPage.open();
         runner.loginPage.clickRegistrationLink();
 
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(ExpectedConditions.urlContains("/register"));
 
         runner.registerPage.enterEmail(email);
@@ -107,7 +107,7 @@ public class todoCreationSteps {
     @Then("the response status code should be {int}")
     public void verify_status_code(int expectedStatus) {
         if (expectedStatus == 201) {
-            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
             wait.until(d -> runner.todoPage.getTaskItems().size() > taskCountBefore);
             assertTrue(runner.todoPage.hasTasksDisplayed());
         } else if (expectedStatus == 400) {
@@ -118,7 +118,7 @@ public class todoCreationSteps {
 
     @And("the response body should contain the title {string}")
     public void verify_response_title(String expectedTitle) {
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(d -> runner.todoPage.hasTasksDisplayed());
         boolean found = runner.todoPage.getTaskItems().stream()
                 .anyMatch(item -> item.getText().contains(expectedTitle));

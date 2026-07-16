@@ -38,7 +38,7 @@ public class todoDeletionSteps {
         runner.loginPage.open();
         runner.loginPage.clickRegistrationLink();
 
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(ExpectedConditions.urlContains("/register"));
 
         runner.registerPage.enterEmail(email);
@@ -87,7 +87,7 @@ public class todoDeletionSteps {
     public void delete_non_existent_todo() {
         // Navigate to a non-existent task URL directly
         runner.driver.get("http://localhost:4200/task/99999999");
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
         wait.until(d -> !runner.todoPage.getErrorMessage().isEmpty()
                 || runner.driver.getCurrentUrl().contains("/task/99999999"));
         deleteAttemptedOnEmpty = true;
@@ -108,7 +108,7 @@ public class todoDeletionSteps {
     @Then("the delete response status code should be {int}")
     public void verify_delete_status_code(int expectedStatus) {
         if (expectedStatus == 204) {
-            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
             wait.until(d -> runner.todoPage.getTaskItems().size() < taskCountBefore);
             assertTrue(runner.todoPage.getTaskItems().size() < taskCountBefore,
                     "Expected task count to decrease after successful deletion");
