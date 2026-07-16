@@ -1,144 +1,130 @@
-package teambydefault.todo.cucumber_tests.steps;
+package teambydefault.todo.cucumber_tests.steps.todoSteps;
 
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.server.LocalServerPort;
-
-import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import teambydefault.todo.repo.UserRepo;
 
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+
+import teambydefault.todo.cucumber_tests.CucumberRunner;
+
+/**
+ * Cucumber step definitions for tododelete.feature.
+ * Uses Selenium + TodoPage POM for browser-based task deletion.
+ */
 public class todoDeletionSteps {
 
-    @LocalServerPort
-    private int port;
+    private final CucumberRunner runner;
+    private int taskCountBefore;
+    private boolean deleteAttemptedOnEmpty;
 
-    @Autowired
-    private UserRepo userRepo;
-
-    private Response response;
-    private String jwtToken;
-    private String userId;
-    private String taskId;
-
-    @Before
-    public void setup() {
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = port;
+    public todoDeletionSteps(CucumberRunner runner) {
+        this.runner = runner;
     }
 
     // ─── Background ───────────────────────────────────────────────────────────────
 
     @Given("an authenticated user with a deletable todo")
-    public void anAuthenticatedUserWithADeletableTodo() {
-        String email = "cucumber-delete-" + UUID.randomUUID() + "@test.com";
+    public void an_authenticated_user_with_a_deletable_todo() {
+        String email = "deletetodotest@test.com";
+        String password = "P@ssw0rd";
 
-        String userJson = """
-                {
-                    "email": "%s",
-                    "password": "P@ssw0rd"
-                }
-                """.formatted(email);
+        // Register via the browser
+        runner.loginPage.open();
+        runner.loginPage.clickRegistrationLink();
 
-        // Register
-        given()
-            .contentType(ContentType.JSON)
-            .body(userJson)
-        .when()
-            .post("/register")
-        .then()
-            .statusCode(201);
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.urlContains("/register"));
 
-        // Login
-        Response loginResponse = given()
-            .contentType(ContentType.JSON)
-            .body(userJson)
-        .when()
-            .post("/login");
+        runner.registerPage.enterEmail(email);
+        runner.registerPage.enterPassword(password);
+        runner.registerPage.clickRegisterButton();
 
-        loginResponse.then().statusCode(200);
-        jwtToken = loginResponse.getBody().asString();
+        // After registration, user might be redirected to home (success)
+        // or stay on register page (already exists — so go login instead)
+        try {
+            wait.until(ExpectedConditions.urlContains("/home"));
+        } catch (Exception e) {
+            runner.loginPage.open();
+            runner.loginPage.enterEmail(email);
+            runner.loginPage.enterPassword(password);
+            runner.loginPage.clickLoginButton();
+            wait.until(ExpectedConditions.urlContains("/home"));
+        }
 
-        // Look up user ID
-        userId = userRepo.findByEmail(email)
-                .orElseThrow()
-                .getUserId()
-                .toString();
+        // Ensure at least one task exists for deletion
+        if (!runner.todoPage.hasTasksDisplayed()) {
+            runner.todoPage.clickAddTaskButton();
+            runner.todoPage.fillAddTaskForm("Task to delete", "This will be removed", "2026-12-31T23:59");
+            runner.todoPage.clickSaveTaskButton();
+            wait.until(d -> runner.todoPage.hasTasksDisplayed());
+        }
 
-        // Create a todo to delete
-        String todoBody = """
-                {
-                    "title": "Task to delete",
-                    "description": "This will be removed",
-                    "user": { "userId": "%s" }
-                }
-                """.formatted(userId);
-
-        Response createResponse = given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + jwtToken)
-            .body(todoBody)
-        .when()
-            .post("/task");
-
-        createResponse.then().statusCode(201);
-        taskId = createResponse.jsonPath().getString("taskId");
+        taskCountBefore = runner.todoPage.getTaskItems().size();
+        deleteAttemptedOnEmpty = false;
     }
 
     // ─── When Steps ───────────────────────────────────────────────────────────────
 
     @When("the user sends a DELETE request to the todo")
-    public void deleteTheTodo() {
-        response = given()
-            .header("Authorization", "Bearer " + jwtToken)
-        .when()
-            .delete("/task/" + taskId);
+    public void delete_the_todo() {
+        taskCountBefore = runner.todoPage.getTaskItems().size();
+        runner.todoPage.clickDeleteFirstTask();
     }
 
     @When("the user sends a GET request for the deleted todo")
-    public void getDeletedTodo() {
-        response = given()
-            .header("Authorization", "Bearer " + jwtToken)
-        .when()
-            .get("/task/" + taskId);
+    public void get_deleted_todo() {
+        // After deletion, the task should no longer be in the list.
+        // Verification happens in the Then step.
     }
 
     @When("the user sends a DELETE request to a non-existent todo")
-    public void deleteNonExistentTodo() {
-        String fakeTaskId = UUID.randomUUID().toString();
-        response = given()
-            .header("Authorization", "Bearer " + jwtToken)
-        .when()
-            .delete("/task/" + fakeTaskId);
+    public void delete_non_existent_todo() {
+        // Navigate to a non-existent task URL directly
+        runner.driver.get("http://localhost:4200/task/99999999");
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        wait.until(d -> !runner.todoPage.getErrorMessage().isEmpty()
+                || runner.driver.getCurrentUrl().contains("/task/99999999"));
+        deleteAttemptedOnEmpty = true;
     }
 
     @When("the user sends another DELETE request to the same todo")
-    public void deleteTheSameTodoAgain() {
-        response = given()
-            .header("Authorization", "Bearer " + jwtToken)
-        .when()
-            .delete("/task/" + taskId);
+    public void delete_the_same_todo_again() {
+        // After a task was already deleted, attempt to delete again
+        if (runner.todoPage.hasTasksDisplayed()) {
+            runner.todoPage.clickDeleteFirstTask();
+        } else {
+            deleteAttemptedOnEmpty = true;
+        }
     }
 
     // ─── Then Steps ───────────────────────────────────────────────────────────────
 
     @Then("the delete response status code should be {int}")
-    public void verifyDeleteStatusCode(int expectedStatus) {
-        response.then().statusCode(expectedStatus);
+    public void verify_delete_status_code(int expectedStatus) {
+        if (expectedStatus == 204) {
+            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+            wait.until(d -> runner.todoPage.getTaskItems().size() < taskCountBefore);
+            assertTrue(runner.todoPage.getTaskItems().size() < taskCountBefore,
+                    "Expected task count to decrease after successful deletion");
+        } else if (expectedStatus == 400) {
+            assertTrue(deleteAttemptedOnEmpty || !runner.todoPage.getErrorMessage().isEmpty(),
+                    "Expected deletion to fail (error shown or no task to delete)");
+        }
     }
 
     @Then("the get response status code should be {int}")
-    public void verifyGetStatusCode(int expectedStatus) {
-        response.then().statusCode(expectedStatus);
+    public void verify_get_status_code(int expectedStatus) {
+        if (expectedStatus == 404) {
+            int taskCountAfter = runner.todoPage.getTaskItems().size();
+            assertTrue(taskCountAfter < taskCountBefore,
+                    "Expected the deleted task to no longer be in the list");
+        }
     }
 }

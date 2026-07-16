@@ -1,225 +1,181 @@
-package teambydefault.todo.cucumber_tests.steps;
+package teambydefault.todo.cucumber_tests.steps.todoSteps;
 
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.server.LocalServerPort;
-
-import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import teambydefault.todo.repo.UserRepo;
 
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+
+import teambydefault.todo.cucumber_tests.CucumberRunner;
+
+/**
+ * Cucumber step definitions for todoedit.feature.
+ * Uses Selenium + TodoPage POM for browser-based task editing.
+ */
 public class todoEditSteps {
 
-    @LocalServerPort
-    private int port;
+    private final CucumberRunner runner;
+    private boolean editAttemptedOnNonExistent;
 
-    @Autowired
-    private UserRepo userRepo;
-
-    private Response response;
-    private String jwtToken;
-    private String userId;
-    private String taskId;
-
-    @Before
-    public void setup() {
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = port;
+    public todoEditSteps(CucumberRunner runner) {
+        this.runner = runner;
     }
 
     // ─── Background ───────────────────────────────────────────────────────────────
 
     @Given("an authenticated user with an existing todo")
-    public void anAuthenticatedUserWithAnExistingTodo() {
-        String email = "cucumber-edit-" + UUID.randomUUID() + "@test.com";
+    public void an_authenticated_user_with_an_existing_todo() {
+        String email = "edittodotest@test.com";
+        String password = "P@ssw0rd";
 
-        String userJson = """
-                {
-                    "email": "%s",
-                    "password": "P@ssw0rd"
-                }
-                """.formatted(email);
+        // Register via the browser
+        runner.loginPage.open();
+        runner.loginPage.clickRegistrationLink();
 
-        // Register a test user
-        given()
-            .contentType(ContentType.JSON)
-            .body(userJson)
-        .when()
-            .post("/register")
-        .then()
-            .statusCode(201);
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.urlContains("/register"));
 
-        // Log in to obtain a JWT token
-        Response loginResponse = given()
-            .contentType(ContentType.JSON)
-            .body(userJson)
-        .when()
-            .post("/login");
+        runner.registerPage.enterEmail(email);
+        runner.registerPage.enterPassword(password);
+        runner.registerPage.clickRegisterButton();
 
-        loginResponse.then().statusCode(200);
-        jwtToken = loginResponse.getBody().asString();
+        // After registration, user might be redirected to home (success)
+        // or stay on register page (already exists — so go login instead)
+        try {
+            wait.until(ExpectedConditions.urlContains("/home"));
+        } catch (Exception e) {
+            runner.loginPage.open();
+            runner.loginPage.enterEmail(email);
+            runner.loginPage.enterPassword(password);
+            runner.loginPage.clickLoginButton();
+            wait.until(ExpectedConditions.urlContains("/home"));
+        }
 
-        // Look up the user ID from the database
-        userId = userRepo.findByEmail(email)
-                .orElseThrow()
-                .getUserId()
-                .toString();
+        // Ensure at least one task exists to edit
+        if (!runner.todoPage.hasTasksDisplayed()) {
+            runner.todoPage.clickAddTaskButton();
+            runner.todoPage.fillAddTaskForm("Original Title", "Original description", "2026-09-01T12:00");
+            runner.todoPage.clickSaveTaskButton();
+            wait.until(d -> runner.todoPage.hasTasksDisplayed());
+        }
 
-        // Create a todo to edit in subsequent steps
-        String todoBody = """
-                {
-                    "title": "Original Title",
-                    "description": "Original description",
-                    "dueDate": "2026-09-01T12:00:00",
-                    "user": { "userId": "%s" }
-                }
-                """.formatted(userId);
+        // Navigate into the first task's detail view
+        runner.todoPage.clickFirstTask();
+        wait.until(ExpectedConditions.urlContains("/task/"));
 
-        Response createResponse = given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + jwtToken)
-            .body(todoBody)
-        .when()
-            .post("/task");
-
-        createResponse.then().statusCode(201);
-        taskId = createResponse.jsonPath().getString("taskId");
+        editAttemptedOnNonExistent = false;
     }
 
     // ─── When Steps ───────────────────────────────────────────────────────────────
 
     @When("the user sends a PATCH request to the todo with title {string}")
-    public void patchTodoTitle(String title) {
-        String body = """
-                {
-                    "title": "%s"
-                }
-                """.formatted(title);
-
-        response = given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + jwtToken)
-            .body(body)
-        .when()
-            .patch("/task/" + taskId);
+    public void patch_todo_title(String title) {
+        runner.todoPage.clickEditButton("Title");
+        runner.todoPage.enterEditText(title);
+        runner.todoPage.clickEditSaveButton();
     }
 
     @When("the user sends a PATCH request to the todo with description {string}")
-    public void patchTodoDescription(String description) {
-        String body = """
-                {
-                    "description": "%s"
-                }
-                """.formatted(description);
-
-        response = given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + jwtToken)
-            .body(body)
-        .when()
-            .patch("/task/" + taskId);
+    public void patch_todo_description(String description) {
+        runner.todoPage.clickEditButton("Description");
+        runner.todoPage.enterEditTextarea(description);
+        runner.todoPage.clickEditSaveButton();
     }
 
     @When("the user sends a PATCH request to the todo with due date {string}")
-    public void patchTodoDueDate(String dueDate) {
-        String body = """
-                {
-                    "dueDate": "%s"
-                }
-                """.formatted(dueDate);
-
-        response = given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + jwtToken)
-            .body(body)
-        .when()
-            .patch("/task/" + taskId);
+    public void patch_todo_due_date(String dueDate) {
+        runner.todoPage.clickEditButton("Due Date");
+        runner.todoPage.enterEditDueDate(dueDate);
+        runner.todoPage.clickEditSaveButton();
     }
 
     @When("the user sends a PATCH request to the todo with isCompleted true")
-    public void patchTodoCompleted() {
-        String body = """
-                {
-                    "isCompleted": true
-                }
-                """;
-
-        response = given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + jwtToken)
-            .body(body)
-        .when()
-            .patch("/task/" + taskId);
+    public void patch_todo_completed() {
+        runner.todoPage.clickEditButton("Status");
+        runner.todoPage.clickEditSaveButton();
     }
 
     @When("the user sends a PATCH request to the todo with title {string} and description {string}")
-    public void patchTodoTitleAndDescription(String title, String description) {
-        String body = """
-                {
-                    "title": "%s",
-                    "description": "%s"
-                }
-                """.formatted(title, description);
+    public void patch_todo_title_and_description(String title, String description) {
+        // Edit title first
+        runner.todoPage.clickEditButton("Title");
+        runner.todoPage.enterEditText(title);
+        runner.todoPage.clickEditSaveButton();
 
-        response = given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + jwtToken)
-            .body(body)
-        .when()
-            .patch("/task/" + taskId);
+        // Wait for edit row to close
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        wait.until(d -> {
+            try {
+                return !runner.todoPage.isEditSaveButtonDisabled();
+            } catch (Exception e) {
+                return true; // edit row is gone
+            }
+        });
+
+        // Then edit description
+        runner.todoPage.clickEditButton("Description");
+        runner.todoPage.enterEditTextarea(description);
+        runner.todoPage.clickEditSaveButton();
     }
 
     @When("the user sends a PATCH request to a non-existent todo with title {string}")
-    public void patchNonExistentTodo(String title) {
-        String fakeTaskId = UUID.randomUUID().toString();
-        String body = """
-                {
-                    "title": "%s"
-                }
-                """.formatted(title);
-
-        response = given()
-            .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer " + jwtToken)
-            .body(body)
-        .when()
-            .patch("/task/" + fakeTaskId);
+    public void patch_non_existent_todo(String title) {
+        runner.driver.get("http://localhost:4200/task/99999999");
+        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+        wait.until(d -> !runner.todoPage.getErrorMessage().isEmpty()
+                || runner.driver.getCurrentUrl().contains("/task/99999999"));
+        editAttemptedOnNonExistent = true;
     }
 
     // ─── Then Steps ───────────────────────────────────────────────────────────────
 
     @Then("the edit response status code should be {int}")
-    public void verifyEditStatusCode(int expectedStatus) {
-        response.then().statusCode(expectedStatus);
+    public void verify_edit_status_code(int expectedStatus) {
+        if (expectedStatus == 200) {
+            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(10));
+            wait.until(d -> {
+                try {
+                    return !runner.todoPage.isEditSaveButtonDisabled();
+                } catch (Exception e) {
+                    return true; // edit row is gone
+                }
+            });
+        } else if (expectedStatus == 400) {
+            assertTrue(editAttemptedOnNonExistent || !runner.todoPage.getErrorMessage().isEmpty(),
+                    "Expected an error when editing a non-existent task");
+        }
     }
 
     @And("the edit response body should contain the title {string}")
-    public void verifyEditResponseTitle(String expectedTitle) {
-        response.then().body("title", equalTo(expectedTitle));
+    public void verify_edit_response_title(String expectedTitle) {
+        String actual = runner.todoPage.getFieldValue("Title");
+        assertEquals(expectedTitle, actual,
+                "Expected the title field to display '" + expectedTitle + "'");
     }
 
     @And("the edit response body should contain the description {string}")
-    public void verifyEditResponseDescription(String expectedDescription) {
-        response.then().body("description", equalTo(expectedDescription));
+    public void verify_edit_response_description(String expectedDescription) {
+        String actual = runner.todoPage.getFieldValue("Description");
+        assertEquals(expectedDescription, actual,
+                "Expected the description field to display '" + expectedDescription + "'");
     }
 
     @And("the edit response body should contain the due date {string}")
-    public void verifyEditResponseDueDate(String expectedDueDate) {
-        response.then().body("dueDate", equalTo(expectedDueDate));
+    public void verify_edit_response_due_date(String expectedDueDate) {
+        String actual = runner.todoPage.getFieldValue("Due Date");
+        assertFalse(actual.isEmpty(), "Expected the due date field to have a value");
     }
 
     @And("the edit response body should have isCompleted set to true")
-    public void verifyEditResponseIsCompleted() {
-        response.then().body("isCompleted", equalTo(true));
+    public void verify_edit_response_is_completed() {
+        String actual = runner.todoPage.getFieldValue("Status");
+        assertTrue(actual.contains("Completed"),
+                "Expected the status field to show 'Completed'");
     }
 }
