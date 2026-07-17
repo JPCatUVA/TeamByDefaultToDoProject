@@ -6,10 +6,6 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
-
 import teambydefault.todo.cucumber_tests.CucumberRunner;
 
 /**
@@ -35,9 +31,7 @@ public class SubtaskDeleteSteps {
 
     @Then("The Subtask is removed from the list")
     public void the_subtask_is_removed_from_the_list() {
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(5));
-        wait.until(d -> runner.todoPage.getSubtaskItems().size() < subtaskCountBefore);
-
+        runner.todoPage.waitForSubtaskCountLessThan(subtaskCountBefore);
         int subtaskCountAfter = runner.todoPage.getSubtaskItems().size();
         assertTrue(subtaskCountAfter < subtaskCountBefore,
                 "Expected subtask count to decrease after deletion");
@@ -47,13 +41,10 @@ public class SubtaskDeleteSteps {
 
     @When("There are no Subtasks present")
     public void there_are_no_subtasks_present() {
-        // Delete all existing subtasks to ensure none remain
         while (runner.todoPage.hasSubtasksDisplayed()) {
+            int countBefore = runner.todoPage.getSubtaskItems().size();
             runner.todoPage.clickDeleteFirstSubtask();
-            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(5));
-            int currentCount = runner.todoPage.getSubtaskItems().size();
-            wait.until(d -> runner.todoPage.getSubtaskItems().size() < currentCount
-                    || !runner.todoPage.hasSubtasksDisplayed());
+            runner.todoPage.waitForSubtaskCountLessThan(countBefore);
         }
         assertFalse(runner.todoPage.hasSubtasksDisplayed(),
                 "Expected no subtasks to be present");

@@ -45,11 +45,18 @@ public class todoEditSteps {
 
     @And("The user clicks the task save button")
     public void the_user_clicks_the_task_save_button() {
+        // For Status field, toggle the checkbox before saving
+        if ("Status".equals(editedFieldLabel)) {
+            runner.todoPage.toggleCompletedCheckbox();
+        }
         runner.todoPage.clickEditSaveButton();
     }
 
     @Then("The task field should now show {string} as updated")
     public void the_task_field_should_now_show_text_as_updated(String expectedValue) {
+        // Wait for the edit row to close (save completed)
+        runner.todoPage.waitForEditRowHidden();
+
         String actualValue = runner.todoPage.getFieldValue(editedFieldLabel);
         assertEquals(expectedValue, actualValue,
                 "Expected field '" + editedFieldLabel + "' to show '" + expectedValue + "'");
@@ -59,6 +66,8 @@ public class todoEditSteps {
 
     @Then("The task due date field should be updated")
     public void the_task_due_date_field_should_be_updated() {
+        runner.todoPage.waitForEditRowHidden();
+
         String actual = runner.todoPage.getFieldValue("Due Date");
         assertFalse(actual.isEmpty(), "Expected the due date field to have a value after update");
     }
@@ -67,6 +76,8 @@ public class todoEditSteps {
 
     @Then("The task status field should show completed")
     public void the_task_status_field_should_show_completed() {
+        runner.todoPage.waitForEditRowHidden();
+
         String actual = runner.todoPage.getFieldValue("Status");
         assertTrue(actual.contains("Completed"),
                 "Expected the status field to show 'Completed'");
@@ -89,6 +100,8 @@ public class todoEditSteps {
 
     @Then("The page will display a task error message")
     public void the_page_will_display_a_task_error_message() {
+        runner.todoPage.waitForErrorDisplayed();
+
         String errorMessage = runner.todoPage.getErrorMessage();
         assertFalse(errorMessage.isEmpty(),
                 "Expected an error message to be displayed for non-existent task");

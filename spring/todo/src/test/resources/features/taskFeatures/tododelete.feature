@@ -2,8 +2,8 @@
 Feature: Todo Deletion
 
     Background: A user must be logged in and have a valid task created
-        Given   A user is registered and logged in
-        When    The user is on their home page
+        Given   The account "test@example.com" "P@ssw0rd" exists
+        When    The user logs in to their home page with "test@example.com" "P@ssw0rd"
         And     There is a task submitted
 
 

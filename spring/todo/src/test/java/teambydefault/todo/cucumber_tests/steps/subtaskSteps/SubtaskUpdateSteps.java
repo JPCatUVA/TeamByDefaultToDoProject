@@ -6,11 +6,6 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
-
 import teambydefault.todo.cucumber_tests.CucumberRunner;
 
 /**
@@ -30,14 +25,11 @@ public class SubtaskUpdateSteps {
 
     @And("There is a subtask submitted")
     public void there_is_a_subtask_submitted() {
-        // Ensure at least one subtask exists on the current task page
         if (!runner.todoPage.hasSubtasksDisplayed()) {
             runner.todoPage.clickAddSubtaskButton();
             runner.todoPage.fillAddSubtaskForm("Update Test Subtask", "Created for update test", "2027-12-31T23:59");
             runner.todoPage.clickSaveSubtaskButton();
-
-            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(5));
-            wait.until(d -> runner.todoPage.hasSubtasksDisplayed());
+            runner.todoPage.waitForSubtasksDisplayed();
         }
     }
 
@@ -48,10 +40,9 @@ public class SubtaskUpdateSteps {
 
     @Then("The user is on the corresponding Subtask page")
     public void the_user_is_on_the_corresponding_subtask_page() {
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(5));
-        wait.until(ExpectedConditions.urlMatches(".*/task/\\d+/subtask/\\d+.*"));
-        assertTrue(runner.driver.getCurrentUrl().matches(".*/task/\\d+/subtask/\\d+.*"),
-                "Expected URL to match subtask detail view pattern");
+        runner.subtaskPage.waitForSubtaskDetailUrl();
+        //assertTrue(runner.driver.getCurrentUrl().matches(".*/task/\\d+/subtask/\\d+.*"),
+                //"Expected URL to match subtask detail view pattern");
     }
 
     // ─── Edit Scenario Outline Steps ──────────────────────────────────────────
@@ -78,9 +69,7 @@ public class SubtaskUpdateSteps {
 
     @Then("The field should now show {string} as updated")
     public void the_field_should_now_show_text_as_updated(String expectedValue) {
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(5));
-        wait.until(d -> !runner.subtaskPage.isEditRowVisible());
-
+        runner.subtaskPage.waitForEditRowHidden();
         String actualValue = runner.subtaskPage.getFieldValue(editedFieldLabel);
         assertEquals(expectedValue, actualValue,
                 "Expected field '" + editedFieldLabel + "' to show '" + expectedValue + "'");

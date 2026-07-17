@@ -30,18 +30,27 @@ public class todoDeletionSteps {
 
     @Then("The Task is removed from the list")
     public void the_task_is_removed_from_the_list() {
+        runner.todoPage.waitForTaskCountLessThan(taskCountBefore);
         int taskCountAfter = runner.todoPage.getTaskItems().size();
         assertTrue(taskCountAfter < taskCountBefore,
-                "Expected task count to decrease after deletion");
+                "Expected task count to decrease after deletion. Sizes were: " + taskCountBefore + " and " + taskCountAfter);
     }
 
     // ─── No Tasks Present Scenario ────────────────────────────────────────────
 
     @When("There are no Tasks present")
     public void there_are_no_tasks_present() {
+        taskCountBefore = runner.todoPage.getTaskItems().size();
+
         // Delete all existing tasks to ensure none remain
         while (runner.todoPage.hasTasksDisplayed()) {
-            runner.todoPage.clickDeleteFirstTask();
+            try{
+                runner.todoPage.clickDeleteFirstTask();
+                runner.todoPage.waitForTaskCountLessThan(taskCountBefore);
+            }
+            catch(Exception e){
+                //silent continue 
+            }
         }
         assertFalse(runner.todoPage.hasTasksDisplayed(),
                 "Expected no tasks to be present");

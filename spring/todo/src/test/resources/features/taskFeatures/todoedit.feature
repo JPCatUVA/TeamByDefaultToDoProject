@@ -2,8 +2,8 @@
 Feature: Todo Editing
 
     Background: A user must be logged in and have a valid task created
-        Given   A user is registered and logged in
-        When    The user is on their home page
+        Given   The account "test@example.com" "P@ssw0rd" exists
+        When    The user logs in to their home page with "test@example.com" "P@ssw0rd"
         And     There is a task submitted
         And     The user clicks on a valid task
         Then    The user is on the corresponding task page
@@ -23,7 +23,7 @@ Feature: Todo Editing
 
     Scenario: As a user I should be allowed to update the due date of a Task
         When    The user clicks on the edit button of a task field called "Due Date"
-        And     The user enters "2026-12-25T09:00" into the task date editing box
+        And     The user enters "1492-07-01T09:00" into the task date editing box
         And     The user clicks the task save button
         Then    The task due date field should be updated
 

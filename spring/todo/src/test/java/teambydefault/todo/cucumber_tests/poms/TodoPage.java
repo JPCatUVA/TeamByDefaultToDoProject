@@ -1,6 +1,7 @@
 package teambydefault.todo.cucumber_tests.poms;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -9,6 +10,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -58,6 +61,8 @@ public class TodoPage {
 
     /** Return the current browser URL. */
     public String getCurrentUrl() {
+        //wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/task")));
+
         return driver.getCurrentUrl();
     }
 
@@ -80,8 +85,8 @@ public class TodoPage {
         descInput.sendKeys(description);
 
         WebElement dateInput = driver.findElement(By.id("dueDate"));
-        dateInput.clear();
-        dateInput.sendKeys(dueDate);
+        dateInput.click();
+        sendDateTimeKeys(dateInput, dueDate);
     }
 
     /** Click the "Save Task" submit button. */
@@ -100,7 +105,6 @@ public class TodoPage {
 
     /** Return all task item elements in the list. */
     public List<WebElement> getTaskItems() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("ul.task-list")));
         return driver.findElements(By.cssSelector("li.task-item"));
     }
 
@@ -166,8 +170,15 @@ public class TodoPage {
     public void enterEditDueDate(String dateTimeLocal) {
         WebElement input = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.edit-row input[type='datetime-local']")));
-        input.clear();
-        input.sendKeys(dateTimeLocal);
+        input.click();
+        sendDateTimeKeys(input, dateTimeLocal);
+    }
+
+    /** Toggle the completed checkbox in the edit row. */
+    public void toggleCompletedCheckbox() {
+        WebElement checkbox = wait.until(
+                ExpectedConditions.elementToBeClickable(By.cssSelector("div.edit-row input[type='checkbox']")));
+        checkbox.click();
     }
 
     /** Click Save in the active edit row. */
@@ -224,8 +235,8 @@ public class TodoPage {
         descInput.sendKeys(description);
 
         WebElement dateInput = driver.findElement(By.id("sub-dueDate"));
-        dateInput.clear();
-        dateInput.sendKeys(dueDate);
+        dateInput.click();
+        sendDateTimeKeys(dateInput, dueDate);
     }
 
     /** Click the "Save Subtask" submit button. */
@@ -245,6 +256,11 @@ public class TodoPage {
     /** Return whether the add-subtask form is currently visible. */
     public boolean isAddSubtaskFormVisible() {
         return !driver.findElements(By.cssSelector("section.subtasks-section form.add-form")).isEmpty();
+    }
+
+    /** Wait until the add-subtask form is visible. */
+    public void waitForAddSubtaskFormVisible() {
+        wait.until(d -> !d.findElements(By.cssSelector("section.subtasks-section form.add-form")).isEmpty());
     }
 
     /** Return all subtask item elements. */
@@ -295,6 +311,15 @@ public class TodoPage {
         wait.until(ExpectedConditions.urlContains(fragment));
     }
 
+    /**
+     * Wait until either the URL contains the given fragment (success)
+     * or an error message appears on the page (failure).
+     */
+    public void waitForUrlContainsOrError(String fragment) {
+        wait.until(d -> d.getCurrentUrl().contains(fragment)
+                || !d.findElements(By.cssSelector("p.register-error, p.login-error, p.error")).isEmpty());
+    }
+
     /** Wait until the URL matches the given regex pattern. */
     public void waitForUrlMatches(String regex) {
         wait.until(ExpectedConditions.urlMatches(regex));
@@ -308,6 +333,11 @@ public class TodoPage {
     /** Wait until the task count exceeds the given previous count. */
     public void waitForTaskCountGreaterThan(int previousCount) {
         wait.until(d -> getTaskItems().size() > previousCount);
+    }
+
+    /** Wait until the task count is less than the given previous count. */
+    public void waitForTaskCountLessThan(int previousCount) {
+        wait.until(d -> getTaskItems().size() < previousCount);
     }
 
     /** Wait until at least one subtask appears in the list. */
@@ -328,5 +358,42 @@ public class TodoPage {
     /** Wait until no subtasks are displayed. */
     public void waitForNoSubtasksDisplayed() {
         wait.until(d -> !hasSubtasksDisplayed());
+    }
+
+    /** Wait until the edit row disappears (save completed). */
+    public void waitForEditRowHidden() {
+        wait.until(d -> d.findElements(By.cssSelector("div.edit-row")).isEmpty());
+    }
+
+    /** Wait until an error message is displayed on the page. */
+    public void waitForErrorDisplayed() {
+        wait.until(d -> !d.findElements(By.cssSelector("p.error")).isEmpty());
+    }
+
+    // ── Private helpers ──────────────────────────────────────────────────────
+
+    /**
+     * Send date/time keys to a datetime-local input in Chrome's native format.
+     * Accepts ISO format (e.g. "2026-12-25T09:00") and types it as:
+     * mmddyyyy TAB hhmm AM/PM
+     */
+    private void sendDateTimeKeys(WebElement input, String isoDateTime) {
+        // Parse the ISO date-time string (supports with or without seconds)
+        LocalDateTime dt = LocalDateTime.parse(isoDateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+        String month = String.format("%02d", dt.getMonthValue());
+        String day = String.format("%02d", dt.getDayOfMonth());
+        String year = String.format("%04d", dt.getYear());
+
+        int hour = dt.getHour();
+        String ampm = hour >= 12 ? "PM" : "AM";
+        if (hour == 0) hour = 12;
+        else if (hour > 12) hour -= 12;
+        String hourStr = String.format("%02d", hour);
+        String minute = String.format("%02d", dt.getMinute());
+
+        input.sendKeys(month + day + year);
+        input.sendKeys(Keys.TAB);
+        input.sendKeys(hourStr + minute + ampm);
     }
 }

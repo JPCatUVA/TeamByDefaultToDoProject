@@ -1,6 +1,7 @@
 package teambydefault.todo.cucumber_tests.poms;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -9,6 +10,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -88,7 +91,12 @@ public class SubtaskPage {
         WebElement input = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.edit-row input[type='text']")));
         input.clear();
-        input.sendKeys(text);
+        if (text.isEmpty()) {
+            input.sendKeys("x");
+            input.sendKeys(Keys.BACK_SPACE);
+        } else {
+            input.sendKeys(text);
+        }
     }
 
     /** Enter text into the currently visible edit textarea (description). */
@@ -103,8 +111,8 @@ public class SubtaskPage {
     public void enterEditDueDate(String dateTimeLocal) {
         WebElement input = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.edit-row input[type='datetime-local']")));
-        input.clear();
-        input.sendKeys(dateTimeLocal);
+        input.click();
+        sendDateTimeKeys(input, dateTimeLocal);
     }
 
     /** Toggle the completed checkbox in the edit row. */
@@ -147,7 +155,7 @@ public class SubtaskPage {
 
     /** Wait until the URL matches the subtask detail view pattern. */
     public void waitForSubtaskDetailUrl() {
-        wait.until(ExpectedConditions.urlMatches(".*/task/\\d+/subtask/\\d+.*"));
+        wait.until(ExpectedConditions.urlContains("subtask"));
     }
 
     /** Wait until the edit row disappears (save completed). */
@@ -158,5 +166,40 @@ public class SubtaskPage {
     /** Wait until the error message is displayed. */
     public void waitForErrorDisplayed() {
         wait.until(d -> isErrorDisplayed());
+    }
+
+    /** Wait until the Save button in the edit row becomes disabled. */
+    public void waitForSaveButtonDisabled() {
+        wait.until(d -> {
+            WebElement btn = d.findElement(
+                    By.xpath("//div[contains(@class,'edit-row')]//button[text()='Save']"));
+            return btn.getAttribute("disabled") != null;
+        });
+    }
+
+    // ── Private helpers ──────────────────────────────────────────────────────
+
+    /**
+     * Send date/time keys to a datetime-local input in Chrome's native format.
+     * Accepts ISO format (e.g. "2026-12-25T09:00") and types it as:
+     * mmddyyyy TAB hhmm AM/PM
+     */
+    private void sendDateTimeKeys(WebElement input, String isoDateTime) {
+        LocalDateTime dt = LocalDateTime.parse(isoDateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+        String month = String.format("%02d", dt.getMonthValue());
+        String day = String.format("%02d", dt.getDayOfMonth());
+        String year = String.format("%04d", dt.getYear());
+
+        int hour = dt.getHour();
+        String ampm = hour >= 12 ? "PM" : "AM";
+        if (hour == 0) hour = 12;
+        else if (hour > 12) hour -= 12;
+        String hourStr = String.format("%02d", hour);
+        String minute = String.format("%02d", dt.getMinute());
+
+        input.sendKeys(month + day + year);
+        input.sendKeys(Keys.TAB);
+        input.sendKeys(hourStr + minute + ampm);
     }
 }

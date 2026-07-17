@@ -3,14 +3,8 @@ package teambydefault.todo.cucumber_tests.steps.subtaskSteps;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
 
 import teambydefault.todo.cucumber_tests.CucumberRunner;
 
@@ -29,50 +23,22 @@ public class SubtaskCreateSteps {
 
     // ─── Background Steps ─────────────────────────────────────────────────────
 
-    @Given("A user is registered and logged in")
-    public void a_user_is_registered_and_logged_in() {
-        String email = "subtasktest@test.com";
-        String password = "P@ssw0rd";
-
+    @When("The user logs in to their home page with {string} {string}")
+    public void the_user_is_on_their_home_page(String email, String password) {
         runner.loginPage.open();
-        runner.loginPage.clickRegistrationLink();
-
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(5));
-        wait.until(ExpectedConditions.urlContains("/register"));
-
-        runner.registerPage.enterEmail(email);
-        runner.registerPage.enterPassword(password);
-        runner.registerPage.clickRegisterButton();
-
-        try {
-            wait.until(ExpectedConditions.urlContains("/home"));
-        } catch (Exception e) {
-            // User already exists — log in instead
-            runner.loginPage.open();
-            runner.loginPage.enterEmail(email);
-            runner.loginPage.enterPassword(password);
-            runner.loginPage.clickLoginButton();
-            wait.until(ExpectedConditions.urlContains("/home"));
-        }
-    }
-
-    @When("The user is on their home page")
-    public void the_user_is_on_their_home_page() {
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(5));
-        wait.until(ExpectedConditions.urlContains("/home"));
-        assertTrue(runner.driver.getCurrentUrl().contains("/home"));
+        runner.loginPage.enterEmail(email);
+        runner.loginPage.enterPassword(password);
+        runner.loginPage.clickLoginButton();
+        runner.todoPage.waitForUrlContains("/home");
     }
 
     @And("There is a task submitted")
     public void there_is_a_task_submitted() {
-        // Create a task if none exist
         if (!runner.todoPage.hasTasksDisplayed()) {
             runner.todoPage.clickAddTaskButton();
             runner.todoPage.fillAddTaskForm("Subtask Test Parent", "Parent task for subtask tests", "2027-12-31T23:59");
             runner.todoPage.clickSaveTaskButton();
-
-            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(5));
-            wait.until(d -> runner.todoPage.hasTasksDisplayed());
+            runner.todoPage.waitForTasksDisplayed();
         }
     }
 
@@ -83,15 +49,15 @@ public class SubtaskCreateSteps {
 
     @Then("The user is on the corresponding task page")
     public void the_user_is_on_the_corresponding_task_page() {
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(5));
-        wait.until(ExpectedConditions.urlMatches(".*/task/\\d+.*"));
-        assertTrue(runner.driver.getCurrentUrl().matches(".*/task/\\d+.*"));
+        runner.todoPage.waitForUrlContains("task");
     }
 
     @And("The user clicks the Add Subtask button")
     public void the_user_clicks_the_add_subtask_button() {
         subtaskCountBefore = runner.todoPage.getSubtaskItems().size();
         runner.todoPage.clickAddSubtaskButton();
+        // Wait for the form to actually appear
+        runner.todoPage.waitForAddSubtaskFormVisible();
     }
 
     // ─── Cancel Scenario ──────────────────────────────────────────────────────
@@ -123,8 +89,7 @@ public class SubtaskCreateSteps {
 
     @Then("A Subtask is created and is viewable in the Subtasks list")
     public void a_subtask_is_created_and_is_viewable_in_the_subtasks_list() {
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(5));
-        wait.until(d -> runner.todoPage.getSubtaskItems().size() > subtaskCountBefore);
+        runner.todoPage.waitForSubtaskCountGreaterThan(subtaskCountBefore);
         assertTrue(runner.todoPage.hasSubtasksDisplayed(),
                 "Expected at least one subtask to be displayed in the subtasks list");
     }

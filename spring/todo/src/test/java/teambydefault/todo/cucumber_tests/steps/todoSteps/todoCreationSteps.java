@@ -31,8 +31,8 @@ public class todoCreationSteps {
 
     // ─── Create Task Steps ────────────────────────────────────────────────────
 
-    @When("The user enters Title {string}, Description {string}, and picks a Due Date {string}")
-    public void the_user_enters_title_description_and_due_date(String title, String description, String date) {
+    @When("The user enters Task Title {string}, Description {string}, and picks a Due Date {string}")
+    public void the_user_enters_task_title_description_and_due_date(String title, String description, String date) {
         runner.todoPage.fillAddTaskForm(title, description, date);
     }
 
@@ -43,8 +43,7 @@ public class todoCreationSteps {
 
     @Then("A Task is created and is viewable in the Tasks list with title {string}")
     public void a_task_is_created_and_is_viewable_in_the_tasks_list(String expectedTitle) {
-        assertTrue(runner.todoPage.getTaskItems().size() > taskCountBefore,
-                "Expected a new task to appear in the list");
+        runner.todoPage.waitForTaskCountGreaterThan(taskCountBefore);
 
         boolean found = runner.todoPage.getTaskItems().stream()
                 .anyMatch(item -> item.getText().contains(expectedTitle));

@@ -2,8 +2,8 @@
 Feature: Subtask Creation
 
     Background: A user must be logged in and have a valid task created
-        Given   A user is registered and logged in
-        When    The user is on their home page
+        Given   The account "test@example.com" "P@ssw0rd" exists
+        When    The user logs in to their home page with "test@example.com" "P@ssw0rd"
         And     There is a task submitted
         And     The user clicks on a valid task
         Then    The user is on the corresponding task page
@@ -27,7 +27,6 @@ Feature: Subtask Creation
 
     Scenario Outline: As a user, I cannot create a nested subtask with no title
         When    The user enters Title "<title>", Description "<description>", and picks a Due Date "<date>"
-        And     The user clicks the Save Subtask button
         Then    The Save Subtask button is invalid
 
     Examples:
