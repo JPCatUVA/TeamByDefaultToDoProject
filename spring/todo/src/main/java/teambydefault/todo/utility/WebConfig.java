@@ -23,7 +23,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Apply CORS rules to all endpoints in the API
-                .allowedOrigins("http://localhost:4200") // Only allow requests from our frontend
+                .allowedOrigins("http://localhost:4200", "http://tbd-todo-frontend.s3-website-us-east-1.amazonaws.com") // Only allow requests from our frontend
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS") // HTTP methods the frontend can use
                 .allowedHeaders("*") // Allow any headers (e.g. Authorization, Content-Type)
                 .allowCredentials(true); // Allow cookies/auth headers to be sent with requests
