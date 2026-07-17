@@ -8,7 +8,7 @@ import { Todo } from '../interfaces/Todo';
 export class TaskService {
   private http = inject(HttpClient);
 
-  private readonly BASE_URL = 'http://localhost:8080/task';
+  private readonly BASE_URL = 'http://184.73.108.173:8080/task';
 
   // GET /task?userId={userId}
   getAllByUser(userId: string) {

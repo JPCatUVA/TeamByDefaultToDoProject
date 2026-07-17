@@ -8,7 +8,7 @@ import { Subtask } from '../interfaces/Subtask';
 export class SubtaskService {
   private http = inject(HttpClient);
 
-  private readonly BASE_URL = 'http://localhost:8080/subtask';
+  private readonly BASE_URL = 'http://184.73.108.173:8080/subtask';
 
   // GET /subtask?taskId={taskId}
   getAllByTask(taskId: string) {

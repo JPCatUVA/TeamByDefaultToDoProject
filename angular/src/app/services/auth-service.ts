@@ -10,7 +10,7 @@ export class AuthService {
   private router = inject(Router);
   private http = inject(HttpClient);
 
-  private readonly BASE_URL = 'http://localhost:8080';
+  private readonly BASE_URL = 'http://184.73.108.173:8080';
   private readonly TOKEN_KEY = 'token';
   private readonly USER_ID_KEY = 'userId';
 
