@@ -1,0 +1,17 @@
+services:
+  backend:
+    build:
+      context: ./spring/todo
+      dockerfile: Dockerfile
+    container_name: todo-backend
+    expose:
+      - "8080"
+  frontend:
+    build:
+      context: ./angular
+      dockerfile: Dockerfile
+    container_name: todo-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
