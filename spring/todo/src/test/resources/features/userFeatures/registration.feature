@@ -1,5 +1,4 @@
-##@user
-@registration
+@user
 Feature: User Registration
 
     Background: All Users Navigate to the Registration Page

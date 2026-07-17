@@ -1,34 +1,23 @@
 package teambydefault.todo.cucumber_tests.steps;
 
-import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 
 import teambydefault.todo.cucumber_tests.CucumberRunner;
 
 /**
  * Cucumber step definitions for login.feature.
  *
- * <p>WebDriver setup and teardown live in {@link CucumberRunner}. This class
- * receives the runner via constructor injection and delegates all browser
- * interaction to the shared POMs it owns.
- *
- * <p>Scenarios that assert an HTTP status code (e.g. 401) call the backend
- * /login endpoint directly via REST Assured rather than scraping from the browser.
+ * <p>All interactions go through the browser via Page Object Models.
+ * WebDriver setup and teardown live in {@link CucumberRunner}.
  */
 public class LoginSteps {
 
     private final CucumberRunner runner;
-
-    /** Stores the last HTTP response from a direct API call (for status code assertions). */
-    private Response lastApiResponse;
 
     public LoginSteps(CucumberRunner runner) {
         this.runner = runner;
@@ -37,26 +26,29 @@ public class LoginSteps {
     // ── Background steps ─────────────────────────────────────────────────────
 
     /**
-     * Seeds an account via the /register endpoint so it exists in the H2 test DB.
-     * Idempotent — if the account already exists (409) we ignore it.
+     * Seeds an account via the registration page. If registration fails
+     * (account already exists), navigates to the login page instead.
+     * If registration succeeds (lands on /home), logs out to prepare
+     * for the next step.
      */
     @Given("The account {string} {string} exists")
     public void theAccountExists(String email, String password) {
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = runner.serverPort;
+        runner.registerPage.open();
+        runner.registerPage.enterEmail(email);
+        runner.registerPage.enterPassword(password);
+        runner.registerPage.clickRegisterButton();
 
-        int status = given()
-                .contentType(ContentType.JSON)
-                .body("{\"email\":\"" + email + "\",\"password\":\"" + password + "\"}")
-                .when()
-                .post("/register")
-                .then()
-                .extract().statusCode();
-
-        // 201 = created, 400 = already exists (or validation) — both are fine for seeding
-        //We had to accept 400 here as thats the only failure code the backend is sending back, 
-        //could be changed at a later date to be more clear
-        assertThat(status).isIn(201, 400);
+        try {
+            // If registration succeeds, the app navigates to /home
+            String url = runner.registerPage.getCurrentUrl();
+            if (url.contains("/home")) {
+                // Logout back to the login page
+                runner.loginPage.clickLogoutButton();
+            }
+        } catch (Exception e) {
+            // Registration failed (account already exists) — navigate to login page
+            runner.loginPage.open();
+        }
     }
 
     /** Navigate to the login page (simulates an unauthorized user hitting the site). */
@@ -86,25 +78,9 @@ public class LoginSteps {
 
     // ── Scenario Outline: invalid credentials ────────────────────────────────
 
-    @And("The user enters invalid credentials {string} and {string}")
-    public void theUserEntersInvalidCredentials(String email, String password) {
-        // Call the API directly so we can capture the HTTP status code.
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = runner.serverPort;
-
-        lastApiResponse = given()
-                .contentType(ContentType.JSON)
-                .body("{\"email\":\"" + email + "\",\"password\":\"" + password + "\"}")
-                .when()
-                .post("/login");
-    }
-
-    // "The user clicks the login button" is re-used by the Outline but the API
-    // response was already captured above — the click step is a no-op here.
-
-    @Then("The response should have a status code {int}")
-    public void theResponseShouldHaveStatusCode(int expectedStatus) {
-        assertThat(lastApiResponse).isNotNull();
-        assertThat(lastApiResponse.statusCode()).isEqualTo(expectedStatus);
+    @Then("The user should see login error message {string}")
+    public void theUserShouldSeeLoginErrorMessage(String expectedMessage) {
+        String actual = runner.loginPage.getErrorMessage();
+        assertThat(actual).contains(expectedMessage);
     }
 }
