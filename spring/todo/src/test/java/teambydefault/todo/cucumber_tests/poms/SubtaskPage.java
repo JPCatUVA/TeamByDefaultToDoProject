@@ -27,9 +27,6 @@ public class SubtaskPage {
     @FindBy(css = "button.back-btn")
     private WebElement backButton;
 
-    @FindBy(css = "p.error")
-    private WebElement errorMessage;
-
     public SubtaskPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);

@@ -2,10 +2,7 @@
 Feature: Subtask Creation
 
     Background: A user must be logged in and have a valid task created
-        Given   A user is registered with a valid password
-        Given   The user is on the login page
-        When    The user enters a valid username
-        When    The user enters the corresponding password
+        Given   A user is registered and logged in
         When    The user is on their home page
         And     There is a task submitted
         And     The user clicks on a valid task
@@ -24,8 +21,8 @@ Feature: Subtask Creation
 
     Examples:
     |title|description|date|
-    |TaskWithDescription|It's me, im a Subtask|2027-12-25T23:59:59|
-    |TaskWithNoDescriptionInthePast||1066-01-01T01:01:01|
+    |TaskWithDescription|It's me, im a Subtask|2027-12-25T23:59|
+    |TaskWithNoDescriptionInthePast||1066-01-01T01:01|
 
 
     Scenario Outline: As a user, I cannot create a nested subtask with no title
@@ -35,5 +32,5 @@ Feature: Subtask Creation
 
     Examples:
     |title|description|date|
-    ||This task has no title|2027-12-25T23:59:59|
-    ||This task also has no title and is in the far past|1066-01-01T01:01:01|
+    ||This task has no title|2027-12-25T23:59|
+    ||This task also has no title and is in the far past|1066-01-01T01:01|

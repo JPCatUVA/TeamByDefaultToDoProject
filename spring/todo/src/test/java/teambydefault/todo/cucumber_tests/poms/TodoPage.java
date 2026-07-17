@@ -23,31 +23,10 @@ public class TodoPage {
     private final WebDriver driver;
     private final WebDriverWait wait;
 
-    // ── Home page elements ───────────────────────────────────────────────────
+    // ── Home page elements (always present) ─────────────────────────────────
 
     @FindBy(css = "button.add-btn")
     private WebElement addTaskButton;
-
-    @FindBy(id = "title")
-    private WebElement addTitleInput;
-
-    @FindBy(id = "description")
-    private WebElement addDescriptionInput;
-
-    @FindBy(id = "dueDate")
-    private WebElement addDueDateInput;
-
-    @FindBy(css = "form.add-form button[type='submit']")
-    private WebElement saveTaskButton;
-
-    @FindBy(css = "ul.task-list")
-    private WebElement taskList;
-
-    @FindBy(css = "p.empty")
-    private WebElement emptyMessage;
-
-    @FindBy(css = "p.error")
-    private WebElement errorMessage;
 
     // ── Task detail view elements ────────────────────────────────────────────
 
@@ -91,25 +70,32 @@ public class TodoPage {
 
     /** Fill in the add-task form fields. */
     public void fillAddTaskForm(String title, String description, String dueDate) {
-        wait.until(ExpectedConditions.visibilityOf(addTitleInput));
-        addTitleInput.clear();
-        addTitleInput.sendKeys(title);
+        WebElement titleInput = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.id("title")));
+        titleInput.clear();
+        titleInput.sendKeys(title);
 
-        addDescriptionInput.clear();
-        addDescriptionInput.sendKeys(description);
+        WebElement descInput = driver.findElement(By.id("description"));
+        descInput.clear();
+        descInput.sendKeys(description);
 
-        addDueDateInput.clear();
-        addDueDateInput.sendKeys(dueDate);
+        WebElement dateInput = driver.findElement(By.id("dueDate"));
+        dateInput.clear();
+        dateInput.sendKeys(dueDate);
     }
 
     /** Click the "Save Task" submit button. */
     public void clickSaveTaskButton() {
-        wait.until(ExpectedConditions.elementToBeClickable(saveTaskButton)).click();
+        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("form.add-form button[type='submit']")));
+        btn.click();
     }
 
     /** Return whether the Save Task button is disabled. */
     public boolean isSaveTaskButtonDisabled() {
-        return !saveTaskButton.isEnabled();
+        WebElement btn = driver.findElement(
+                By.cssSelector("form.add-form button[type='submit']"));
+        return !btn.isEnabled();
     }
 
     /** Return all task item elements in the list. */

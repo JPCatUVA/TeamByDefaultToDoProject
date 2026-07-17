@@ -53,8 +53,10 @@ public class LoginSteps {
                 .then()
                 .extract().statusCode();
 
-        // 201 = created, 409 = already exists — both are fine for this step
-        assertThat(status).isIn(201, 409);
+        // 201 = created, 400 = already exists (or validation) — both are fine for seeding
+        //We had to accept 400 here as thats the only failure code the backend is sending back, 
+        //could be changed at a later date to be more clear
+        assertThat(status).isIn(201, 400);
     }
 
     /** Navigate to the login page (simulates an unauthorized user hitting the site). */

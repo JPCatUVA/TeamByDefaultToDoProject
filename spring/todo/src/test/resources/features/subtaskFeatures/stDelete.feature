@@ -2,10 +2,7 @@
 Feature: Subtask Deletion
 
     Background: A user must be logged in and have a valid task created
-        Given   A user is registered with a valid password
-        Given   The user is on the login page
-        When    The user enters a valid username
-        When    The user enters the corresponding password
+        Given   A user is registered and logged in
         When    The user is on their home page
         And     There is a task submitted
         And     The user clicks on a valid task

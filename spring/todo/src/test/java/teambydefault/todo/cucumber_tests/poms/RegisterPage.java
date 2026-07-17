@@ -51,8 +51,12 @@ public class RegisterPage {
         submitBtn.click();
     }
 
-    /** Return the current browser URL. */
+    /**
+     * Wait for the URL to change away from the registration page, then return it.
+     * Useful after a successful registration + auto-login flow.
+     */
     public String getCurrentUrl() {
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/register")));
         return driver.getCurrentUrl();
     }
 

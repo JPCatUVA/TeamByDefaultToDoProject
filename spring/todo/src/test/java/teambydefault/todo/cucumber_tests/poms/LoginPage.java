@@ -60,6 +60,7 @@ public class LoginPage {
 
     /** Return the current browser URL. */
     public String getCurrentUrl() {
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/login")));
         return driver.getCurrentUrl();
     }
 

@@ -2,10 +2,7 @@
 Feature: Subtask Read
 
     Background: A user must be logged in and have a valid task created
-        Given   A user is registered with a valid password
-        Given   The user is on the login page
-        When    The user enters a valid username
-        When    The user enters the corresponding password
+        Given   A user is registered and logged in
         When    The user is on their home page
         And     There is a task submitted
         And     The user clicks on a valid task
@@ -23,4 +20,4 @@ Feature: Subtask Read
 
     Scenario: As a user I should not be able to view the subtasks of others
         When    The user tries to manually enter a subtask path to a subtask that is not theirs
-        Then    The page will display the error message "Failed to load subtask. Please try again"
+        Then    The page will display the error message "Failed to load subtask. Please try again."
