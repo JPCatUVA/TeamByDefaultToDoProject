@@ -3,14 +3,8 @@ package teambydefault.todo.cucumber_tests.steps.todoSteps;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
 
 import teambydefault.todo.cucumber_tests.CucumberRunner;
 
@@ -21,161 +15,82 @@ import teambydefault.todo.cucumber_tests.CucumberRunner;
 public class todoEditSteps {
 
     private final CucumberRunner runner;
-    private boolean editAttemptedOnNonExistent;
+    private String editedFieldLabel;
 
     public todoEditSteps(CucumberRunner runner) {
         this.runner = runner;
     }
 
-    // ─── Background ───────────────────────────────────────────────────────────────
+    // ─── Edit Scenario Outline Steps ──────────────────────────────────────────
 
-    @Given("an authenticated user with an existing todo")
-    public void an_authenticated_user_with_an_existing_todo() {
-        String email = "edittodotest@test.com";
-        String password = "P@ssw0rd";
-
-        // Register via the browser
-        runner.loginPage.open();
-        runner.loginPage.clickRegistrationLink();
-
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
-        wait.until(ExpectedConditions.urlContains("/register"));
-
-        runner.registerPage.enterEmail(email);
-        runner.registerPage.enterPassword(password);
-        runner.registerPage.clickRegisterButton();
-
-        // After registration, user might be redirected to home (success)
-        // or stay on register page (already exists — so go login instead)
-        try {
-            wait.until(ExpectedConditions.urlContains("/home"));
-        } catch (Exception e) {
-            runner.loginPage.open();
-            runner.loginPage.enterEmail(email);
-            runner.loginPage.enterPassword(password);
-            runner.loginPage.clickLoginButton();
-            wait.until(ExpectedConditions.urlContains("/home"));
-        }
-
-        // Ensure at least one task exists to edit
-        if (!runner.todoPage.hasTasksDisplayed()) {
-            runner.todoPage.clickAddTaskButton();
-            runner.todoPage.fillAddTaskForm("Original Title", "Original description", "2026-09-01T12:00");
-            runner.todoPage.clickSaveTaskButton();
-            wait.until(d -> runner.todoPage.hasTasksDisplayed());
-        }
-
-        // Navigate into the first task's detail view
-        runner.todoPage.clickFirstTask();
-        wait.until(ExpectedConditions.urlContains("/task/"));
-
-        editAttemptedOnNonExistent = false;
+    @When("The user clicks on the edit button of a task field called {string}")
+    public void the_user_clicks_on_the_edit_button_of_a_task_field_called(String field) {
+        editedFieldLabel = field;
+        runner.todoPage.clickEditButton(editedFieldLabel);
     }
 
-    // ─── When Steps ───────────────────────────────────────────────────────────────
-
-    @When("the user sends a PATCH request to the todo with title {string}")
-    public void patch_todo_title(String title) {
-        runner.todoPage.clickEditButton("Title");
-        runner.todoPage.enterEditText(title);
-        runner.todoPage.clickEditSaveButton();
-    }
-
-    @When("the user sends a PATCH request to the todo with description {string}")
-    public void patch_todo_description(String description) {
-        runner.todoPage.clickEditButton("Description");
-        runner.todoPage.enterEditTextarea(description);
-        runner.todoPage.clickEditSaveButton();
-    }
-
-    @When("the user sends a PATCH request to the todo with due date {string}")
-    public void patch_todo_due_date(String dueDate) {
-        runner.todoPage.clickEditButton("Due Date");
-        runner.todoPage.enterEditDueDate(dueDate);
-        runner.todoPage.clickEditSaveButton();
-    }
-
-    @When("the user sends a PATCH request to the todo with isCompleted true")
-    public void patch_todo_completed() {
-        runner.todoPage.clickEditButton("Status");
-        runner.todoPage.clickEditSaveButton();
-    }
-
-    @When("the user sends a PATCH request to the todo with title {string} and description {string}")
-    public void patch_todo_title_and_description(String title, String description) {
-        // Edit title first
-        runner.todoPage.clickEditButton("Title");
-        runner.todoPage.enterEditText(title);
-        runner.todoPage.clickEditSaveButton();
-
-        // Wait for edit row to close
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
-        wait.until(d -> {
-            try {
-                return !runner.todoPage.isEditSaveButtonDisabled();
-            } catch (Exception e) {
-                return true; // edit row is gone
-            }
-        });
-
-        // Then edit description
-        runner.todoPage.clickEditButton("Description");
-        runner.todoPage.enterEditTextarea(description);
-        runner.todoPage.clickEditSaveButton();
-    }
-
-    @When("the user sends a PATCH request to a non-existent todo with title {string}")
-    public void patch_non_existent_todo(String title) {
-        runner.driver.get("http://localhost:4200/task/99999999");
-        WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
-        wait.until(d -> !runner.todoPage.getErrorMessage().isEmpty()
-                || runner.driver.getCurrentUrl().contains("/task/99999999"));
-        editAttemptedOnNonExistent = true;
-    }
-
-    // ─── Then Steps ───────────────────────────────────────────────────────────────
-
-    @Then("the edit response status code should be {int}")
-    public void verify_edit_status_code(int expectedStatus) {
-        if (expectedStatus == 200) {
-            WebDriverWait wait = new WebDriverWait(runner.driver, Duration.ofSeconds(2));
-            wait.until(d -> {
-                try {
-                    return !runner.todoPage.isEditSaveButtonDisabled();
-                } catch (Exception e) {
-                    return true; // edit row is gone
-                }
-            });
-        } else if (expectedStatus == 400) {
-            assertTrue(editAttemptedOnNonExistent || !runner.todoPage.getErrorMessage().isEmpty(),
-                    "Expected an error when editing a non-existent task");
+    @And("The user enters {string} into the task editing box")
+    public void the_user_enters_text_into_the_task_editing_box(String text) {
+        if ("Description".equals(editedFieldLabel)) {
+            runner.todoPage.enterEditTextarea(text);
+        } else {
+            runner.todoPage.enterEditText(text);
         }
     }
 
-    @And("the edit response body should contain the title {string}")
-    public void verify_edit_response_title(String expectedTitle) {
-        String actual = runner.todoPage.getFieldValue("Title");
-        assertEquals(expectedTitle, actual,
-                "Expected the title field to display '" + expectedTitle + "'");
+    @And("The user enters {string} into the task date editing box")
+    public void the_user_enters_date_into_the_task_date_editing_box(String date) {
+        runner.todoPage.enterEditDueDate(date);
     }
 
-    @And("the edit response body should contain the description {string}")
-    public void verify_edit_response_description(String expectedDescription) {
-        String actual = runner.todoPage.getFieldValue("Description");
-        assertEquals(expectedDescription, actual,
-                "Expected the description field to display '" + expectedDescription + "'");
+    @And("The user clicks the task save button")
+    public void the_user_clicks_the_task_save_button() {
+        runner.todoPage.clickEditSaveButton();
     }
 
-    @And("the edit response body should contain the due date {string}")
-    public void verify_edit_response_due_date(String expectedDueDate) {
+    @Then("The task field should now show {string} as updated")
+    public void the_task_field_should_now_show_text_as_updated(String expectedValue) {
+        String actualValue = runner.todoPage.getFieldValue(editedFieldLabel);
+        assertEquals(expectedValue, actualValue,
+                "Expected field '" + editedFieldLabel + "' to show '" + expectedValue + "'");
+    }
+
+    // ─── Due Date Update ──────────────────────────────────────────────────────
+
+    @Then("The task due date field should be updated")
+    public void the_task_due_date_field_should_be_updated() {
         String actual = runner.todoPage.getFieldValue("Due Date");
-        assertFalse(actual.isEmpty(), "Expected the due date field to have a value");
+        assertFalse(actual.isEmpty(), "Expected the due date field to have a value after update");
     }
 
-    @And("the edit response body should have isCompleted set to true")
-    public void verify_edit_response_is_completed() {
+    // ─── Mark as Completed ────────────────────────────────────────────────────
+
+    @Then("The task status field should show completed")
+    public void the_task_status_field_should_show_completed() {
         String actual = runner.todoPage.getFieldValue("Status");
         assertTrue(actual.contains("Completed"),
                 "Expected the status field to show 'Completed'");
+    }
+
+    // ─── Invalid Edit (Blank Title) ───────────────────────────────────────────
+
+    @Then("The task save button is invalid")
+    public void the_task_save_button_is_invalid() {
+        assertTrue(runner.todoPage.isEditSaveButtonDisabled(),
+                "Expected Save button to be disabled when required field is blank");
+    }
+
+    // ─── Non-existent Task ────────────────────────────────────────────────────
+
+    @When("The user tries to manually enter a task path to a task that does not exist")
+    public void the_user_tries_to_manually_enter_a_task_path_that_does_not_exist() {
+        runner.todoPage.openTask(99999999);
+    }
+
+    @Then("The page will display a task error message")
+    public void the_page_will_display_a_task_error_message() {
+        String errorMessage = runner.todoPage.getErrorMessage();
+        assertFalse(errorMessage.isEmpty(),
+                "Expected an error message to be displayed for non-existent task");
     }
 }

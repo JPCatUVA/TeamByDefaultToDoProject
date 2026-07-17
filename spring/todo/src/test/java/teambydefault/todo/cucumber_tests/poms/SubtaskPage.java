@@ -142,4 +142,21 @@ public class SubtaskPage {
     public boolean isEditRowVisible() {
         return !driver.findElements(By.cssSelector("div.edit-row")).isEmpty();
     }
+
+    // ── Wait helpers ─────────────────────────────────────────────────────────
+
+    /** Wait until the URL matches the subtask detail view pattern. */
+    public void waitForSubtaskDetailUrl() {
+        wait.until(ExpectedConditions.urlMatches(".*/task/\\d+/subtask/\\d+.*"));
+    }
+
+    /** Wait until the edit row disappears (save completed). */
+    public void waitForEditRowHidden() {
+        wait.until(d -> !isEditRowVisible());
+    }
+
+    /** Wait until the error message is displayed. */
+    public void waitForErrorDisplayed() {
+        wait.until(d -> isErrorDisplayed());
+    }
 }

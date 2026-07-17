@@ -287,4 +287,46 @@ public class TodoPage {
         List<WebElement> errors = driver.findElements(By.cssSelector("section.subtasks-section span.field-error"));
         return errors.isEmpty() ? "" : errors.get(0).getText();
     }
+
+    // ── Wait helpers (encapsulate all waiting logic here) ────────────────────
+
+    /** Wait until the URL contains the given path fragment. */
+    public void waitForUrlContains(String fragment) {
+        wait.until(ExpectedConditions.urlContains(fragment));
+    }
+
+    /** Wait until the URL matches the given regex pattern. */
+    public void waitForUrlMatches(String regex) {
+        wait.until(ExpectedConditions.urlMatches(regex));
+    }
+
+    /** Wait until at least one task appears in the list. */
+    public void waitForTasksDisplayed() {
+        wait.until(d -> hasTasksDisplayed());
+    }
+
+    /** Wait until the task count exceeds the given previous count. */
+    public void waitForTaskCountGreaterThan(int previousCount) {
+        wait.until(d -> getTaskItems().size() > previousCount);
+    }
+
+    /** Wait until at least one subtask appears in the list. */
+    public void waitForSubtasksDisplayed() {
+        wait.until(d -> hasSubtasksDisplayed());
+    }
+
+    /** Wait until the subtask count exceeds the given previous count. */
+    public void waitForSubtaskCountGreaterThan(int previousCount) {
+        wait.until(d -> getSubtaskItems().size() > previousCount);
+    }
+
+    /** Wait until the subtask count is less than the given previous count. */
+    public void waitForSubtaskCountLessThan(int previousCount) {
+        wait.until(d -> getSubtaskItems().size() < previousCount);
+    }
+
+    /** Wait until no subtasks are displayed. */
+    public void waitForNoSubtasksDisplayed() {
+        wait.until(d -> !hasSubtasksDisplayed());
+    }
 }

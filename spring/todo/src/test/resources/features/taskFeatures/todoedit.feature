@@ -1,35 +1,46 @@
 @task
 Feature: Todo Editing
 
-  Background:
-    Given an authenticated user with an existing todo
+    Background: A user must be logged in and have a valid task created
+        Given   A user is registered and logged in
+        When    The user is on their home page
+        And     There is a task submitted
+        And     The user clicks on a valid task
+        Then    The user is on the corresponding task page
 
-  Scenario: Successfully update the title of a todo
-    When the user sends a PATCH request to the todo with title "Updated Title"
-    Then the edit response status code should be 200
-    And the edit response body should contain the title "Updated Title"
 
-  Scenario: Successfully update the description of a todo
-    When the user sends a PATCH request to the todo with description "New description here"
-    Then the edit response status code should be 200
-    And the edit response body should contain the description "New description here"
+    Scenario Outline: As a user I should be allowed to change the fields of a Task
+        When    The user clicks on the edit button of a task field called "<field>"
+        And     The user enters "<text>" into the task editing box
+        And     The user clicks the task save button
+        Then    The task field should now show "<text>" as updated
 
-  Scenario: Successfully update the due date of a todo
-    When the user sends a PATCH request to the todo with due date "2026-12-25T09:00:00"
-    Then the edit response status code should be 200
-    And the edit response body should contain the due date "2026-12-25T09:00:00"
+    Examples:
+    |field|text|
+    |Title|Updated Title|
+    |Description|New description here|
 
-  Scenario: Successfully mark a todo as completed
-    When the user sends a PATCH request to the todo with isCompleted true
-    Then the edit response status code should be 200
-    And the edit response body should have isCompleted set to true
 
-  Scenario: Successfully update multiple fields at once
-    When the user sends a PATCH request to the todo with title "Multi-edit" and description "Changed both"
-    Then the edit response status code should be 200
-    And the edit response body should contain the title "Multi-edit"
-    And the edit response body should contain the description "Changed both"
+    Scenario: As a user I should be allowed to update the due date of a Task
+        When    The user clicks on the edit button of a task field called "Due Date"
+        And     The user enters "2026-12-25T09:00" into the task date editing box
+        And     The user clicks the task save button
+        Then    The task due date field should be updated
 
-  Scenario: Fail to update a non-existent todo
-    When the user sends a PATCH request to a non-existent todo with title "Ghost edit"
-    Then the edit response status code should be 400
+
+    Scenario: As a user I should be allowed to mark a Task as completed
+        When    The user clicks on the edit button of a task field called "Status"
+        And     The user clicks the task save button
+        Then    The task status field should show completed
+
+
+    Scenario: As a user the app should gracefully handle editing a required title to blank
+        When    The user clicks on the edit button of a task field called "Title"
+        And     The user enters "" into the task editing box
+        Then    The task save button is invalid
+
+
+    Scenario: As a user I should not be able to edit a non-existent Task
+        When    The user tries to manually enter a task path to a task that does not exist
+        Then    The page will display a task error message
+

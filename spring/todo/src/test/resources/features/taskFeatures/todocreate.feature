@@ -1,28 +1,29 @@
 @task
 Feature: Todo Creation
 
-  Background:
-    Given a user exists in the system
+    Background: A user must be logged in
+        Given   A user is registered and logged in
+        When    The user is on their home page
+        And     The user clicks the Add Task button
 
-  Scenario: Successfully create a todo with all fields
-    When the user sends a POST request to "/task" with title "Buy groceries" and description "Milk, eggs, bread" and due date "2026-08-01T10:00:00"
-    Then the response status code should be 201
-    And the response body should contain the title "Buy groceries"
-    And the response body should contain a generated task ID
 
-  Scenario: Successfully create a todo with only the required title
-    When the user sends a POST request to "/task" with title "Morning run"
-    Then the response status code should be 201
-    And the response body should contain the title "Morning run"
+    Scenario Outline: As a user, I can create a task with varied input
+        When    The user enters Title "<title>", Description "<description>", and picks a Due Date "<date>"
+        And     The user clicks the Save Task button
+        Then    A Task is created and is viewable in the Tasks list with title "<title>"
 
-  Scenario: Fail to create a todo without a title
-    When the user sends a POST request to "/task" with an empty title
-    Then the response status code should be 400
+    Examples:
+    |title|description|date|
+    |Buy groceries (yum)|Milk, eggs, bread|2026-08-01T10:00|
+    |Morning run (gross)||2026-12-31T23:59|
 
-  Scenario: Fail to create a todo without a user
-    When a POST request to "/task" is sent without a user ID
-    Then the response status code should be 400
 
-  Scenario: Fail to create a todo with a non-existent user
-    When the user sends a POST request to "/task" with a non-existent user ID and title "Ghost task"
-    Then the response status code should be 400
+    Scenario Outline: As a user, I cannot create a task with no title
+        When    The user enters Title "<title>", Description "<description>", and picks a Due Date "<date>"
+        Then    The Save Task button is invalid
+
+    Examples:
+    |title|description|date|
+    ||Some description|2026-12-31T23:59|
+    |||2026-12-31T23:59|
+
