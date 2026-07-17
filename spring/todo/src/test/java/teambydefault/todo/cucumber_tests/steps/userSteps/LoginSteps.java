@@ -1,4 +1,4 @@
-package teambydefault.todo.cucumber_tests.steps;
+package teambydefault.todo.cucumber_tests.steps.userSteps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
