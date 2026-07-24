@@ -50,4 +50,10 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	// Forward cucumber.* system properties from the command line to the test JVM
+	System.getProperties().forEach { (key, value) ->
+		if (key.toString().startsWith("cucumber.")) {
+			systemProperty(key.toString(), value.toString())
+		}
+	}
 }

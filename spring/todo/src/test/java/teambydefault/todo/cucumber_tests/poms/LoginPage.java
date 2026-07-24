@@ -58,17 +58,30 @@ public class LoginPage {
         registerLink.click();
     }
 
-    /** Return the current browser URL, waiting up to 10 s for Angular's async navigation to complete. */
+    /** Wait for the URL to leave /login, then return it. */
     public String getCurrentUrl() {
-        wait.until(driver -> {
-            String url = driver.getCurrentUrl();
-            return url != null && url.contains("/home");
-        });
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/login")));
         return driver.getCurrentUrl();
     }
 
     /** Return whether the error message paragraph is visible. */
     public boolean isErrorDisplayed() {
         return !driver.findElements(By.cssSelector("p.login-error")).isEmpty();
+    }
+
+    /**
+     * Wait for the login error message to appear and return its text.
+     */
+    public String getErrorMessage() {
+        WebElement errorEl = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.cssSelector("p.login-error")));
+        return errorEl.getText();
+    }
+
+    /** Click the Logout button in the app footer. */
+    public void clickLogoutButton() {
+        WebElement logoutBtn = wait.until(
+                ExpectedConditions.elementToBeClickable(By.cssSelector("button.logout-btn")));
+        logoutBtn.click();
     }
 }

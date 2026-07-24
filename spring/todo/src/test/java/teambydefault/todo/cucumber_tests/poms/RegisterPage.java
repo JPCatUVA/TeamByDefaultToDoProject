@@ -66,12 +66,12 @@ public class RegisterPage {
         submitBtn.click();
     }
 
-    /** Return the current browser URL, waiting up to 10 s for Angular's async navigation to complete. */
+    /**
+     * Wait for the URL to change away from the registration page, then return it.
+     * Useful after a successful registration + auto-login flow.
+     */
     public String getCurrentUrl() {
-        wait.until(driver -> {
-            String url = driver.getCurrentUrl();
-            return url != null && url.contains("/home");
-        });
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/register")));
         return driver.getCurrentUrl();
     }
 
